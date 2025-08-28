@@ -1,0 +1,20 @@
+# Node.js / backend
+node_modules/
+.env
+npm-debug.log
+yarn-error.log
+dist/
+build/
+uploads/
+
+
+
+# System files
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
+
+# Misc
+.idea/
+*.swp
