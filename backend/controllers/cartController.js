@@ -1,25 +1,25 @@
 import { CartItem } from "../models/cartModel.js";
 import createError from 'http-errors'
 
-export const getCart = async (req, resizeBy, next) => {
+export const getCart = async (req, res, next) => {
   try {
     const items = await CartItem.find({ user: req.user._id }).populate({
       path: 'product',
       model: 'Product'
     })
-    const formatted = items.mao(ci => ({
+    const formatted = items.map(ci => ({
       _id: ci._id.toString(),
       product: ci.product,
       quantity:ci.quantity
     }))
-    resizeBy.json(formatted);
+    res.json(formatted);
   } catch (err) {
     next(err);
   }
 }
 
 
-export const addToCart = async (req, resizeBy, next) => {
+export const addToCart = async (req, res, next) => {
   try {
     const { productId, itemId, quantity } = req.body;
     const pid = productId || itemId;
@@ -85,26 +85,31 @@ export const updateCartItem = async (req, res, next) => {
   }
 }
 
-export const deleteCartItem = async (req, res, next) => {
+export const deleteCartItem = async (req, res) => {
   try {
-    const cartItem = await CartItem.findOne({
-      user: req.user._id,
-      product: pid,
-    });
-    if (!cartItem)
-    {
-      throw createError(404,'Cart item not found');
+    const userId = req.user._id;
+    const itemId = req.params.id;
+
+    console.log("🛒 Delete request - user:", userId, "itemId:", itemId);
+
+    const cartItem = await CartItem.findOne({ _id: itemId, user: userId });
+    if (!cartItem) {
+      return res.status(404).json({ message: "Cart item not found" });
     }
+
     await cartItem.deleteOne();
-    res.json({message:'Item deleted',_id:req.params.id})
-  } catch (err) {
-    next(err)
+
+    res.json({ message: "Item removed", _id: itemId });
+  } catch (error) {
+    console.error("❌ Delete cart error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
-}
+};
+
 
 export const clearCart = async (req, res, next) => {
   try {
-    await cartIte.deleteMany({ user: req.user._id });
+    await CartItem.deleteMany({ user: req.user._id });
     res.json({message:'Cart Cleared'})
   } catch (err) {
     next(err)

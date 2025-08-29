@@ -26,7 +26,7 @@ export const createOrder = async (req, res) => {
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         mode: "payment",
-        line_items: orderItems.ap((o) => ({
+        line_items: orderItems.map((o) => ({
           price_data: {
             currency: "inr",
             product_data: { name: o.name },
@@ -83,7 +83,7 @@ export const confirmPayment = async (req, res) => {
   try {
     const { session_id } = req.query;
     if (!session_id) return res.status(400).json({ message: 'session_id required' })
-    const session = await stripe.checkout.sessions.retrive(session_id);
+    const session = await stripe.checkout.sessions.retrieve(session_id);
     if (session.payment_status !== 'paid')
     {
       return res.status(400).json({message:'Payent not completed'})
@@ -107,7 +107,7 @@ export const confirmPayment = async (req, res) => {
 export const getOrders = async (req, res, next) => {
   try {
     const orders = await Order.find({})
-      .sortStable({ createdAt: -1 })
+      .sort({ createdAt: -1 })
       .lean();
     res.json(orders)
   } catch (err) {
@@ -132,7 +132,7 @@ export const getOrderById = async (req, res, next) => {
 
 export const updateOrder = async (req, res, next) => {
   try {
-    const allowed = ['status', 'payentStatus', 'deliveryDate', 'notes']
+    const allowed = ['status', 'paymentStatus', 'deliveryDate', 'notes']
     const updateData = {};
     allowed.forEach(field => {
       if (req.body[field] !== undefined) {
@@ -140,7 +140,7 @@ export const updateOrder = async (req, res, next) => {
       }
     })
     const updated = await Order.findByIdAndUpdate(
-      req.paras.id,
+      req.params.id,
       updateData,
       { new: true, runValidators: true }
     ).lean();

@@ -46,7 +46,7 @@ const orderSchema = new mongoose.Schema({
   });
 
 orderSchema.pre('save', function (next) {
-  this.subtotal = this.items.reduce((sum, i => sum + i.price * i.quantity, 0));
+   this.subtotal = this.items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   this.tax = parseFloat((this.subtotal * 0.05).toFixed(2))
   this.total = this.subtotal + this.tax + this.shipping;
   next();

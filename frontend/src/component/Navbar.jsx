@@ -1,8 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
-import {navbarStyles} from '../assets/dummyStyles'
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import logo from '../assets/logo.png';
-import { navItems } from "../assets/Dummy.jsx";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FiHome,
   FiShoppingBag,
@@ -13,76 +10,108 @@ import {
   FiPackage, // Added for My Orders icon
 } from "react-icons/fi";
 import { FaOpencart } from "react-icons/fa";
-import { useCart } from '../CartContent..jsx';
+import { useCart } from "../CartContext";
+import logo from "../assets/logo.png";
+import { navbarStyles } from "../assets/dummyStyles";
+import { navItems } from "../assets/Dummy";
 
-
-const Navbar = () => {
+export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { cartCount } = useCart();
-    
-  const [scrolled, setScrolled] = useState(false);
-  const [activeTab, setActiveTab] = useState(location.pathname)
+
   const [isOpen, setIsOpen] = useState(false);
-  const [cartBounce, setCartBounce] = useState(false);
+  const [activeTab, setActiveTab] = useState(location.pathname);
+  const [scrolled, setScrolled] = useState(false);
   const prevCartCountRef = useRef(cartCount);
-   const [isLoggedIn, setIsLoggedIn] = useState(
-     Boolean(localStorage.getItem("authToken"))
+  const [cartBounce, setCartBounce] = useState(false);
+
+  // Auth state
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    Boolean(localStorage.getItem("authToken"))
   );
 
-  const mobileMenuRef = useRef(null)
+  // Mobile menu ref
+  const mobileMenuRef = useRef(null);
+
+  // Sync active tab & close mobile menu on route change
   useEffect(() => {
     setActiveTab(location.pathname);
     setIsOpen(false);
   }, [location]);
 
-   useEffect(() => {
-     const handleScroll = () => setScrolled(window.scrollY > 20);
-     window.addEventListener("scroll", handleScroll);
-     return () => window.removeEventListener("scroll", handleScroll);
-   }, []);
-  
-    useEffect(() => {
-      if (cartCount > prevCartCountRef.current) {
-        setCartBounce(true);
-        const timer = setTimeout(() => setCartBounce(false), 1000);
-        return () => clearTimeout(timer);
+  // Scroll effect
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Bounce cart icon when new item added
+  useEffect(() => {
+    if (cartCount > prevCartCountRef.current) {
+      setCartBounce(true);
+      const timer = setTimeout(() => setCartBounce(false), 1000);
+      return () => clearTimeout(timer);
+    }
+    prevCartCountRef.current = cartCount;
+  }, [cartCount]);
+
+  // Listen for auth changes
+  useEffect(() => {
+    const handler = () => {
+      setIsLoggedIn(Boolean(localStorage.getItem("authToken")));
+    };
+    window.addEventListener("authStateChanged", handler);
+    return () => window.removeEventListener("authStateChanged", handler);
+  }, []);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        isOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target)
+      ) {
+        setIsOpen(false);
       }
-      prevCartCountRef.current = cartCount;
-    }, [cartCount]);
-  
-    useEffect(() => {
-      const handler = () => {
-        setIsLoggedIn(Boolean(localStorage.getItem("authToken")));
-      };
-      window.addEventListener("authStateChanged", handler);
-      return () => window.removeEventListener("authStateChanged", handler);
-    }, []);
-  
-     useEffect(() => {
-       const handleClickOutside = (event) => {
-         if (
-           isOpen &&
-           mobileMenuRef.current &&
-           !mobileMenuRef.current.contains(event.target)
-         ) {
-           setIsOpen(false);
-         }
-       };
+    };
 
-       document.addEventListener("mousedown", handleClickOutside);
-       return () => {
-         document.removeEventListener("mousedown", handleClickOutside);
-       };
-     }, [isOpen]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
 
+  // Logout handler
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
+    window.dispatchEvent(new Event("authStateChanged"));
+    navigate("/login");
+  };
 
-   const handleLogout = () => {
-     localStorage.removeItem("authToken");
-     localStorage.removeItem("userData");
-     window.dispatchEvent(new Event("authStateChanged"));
-     navigate("/");
-   };
+  // Updated nav items with conditional "My Orders" link
+  const getNavItems = () => {
+    const baseItems = [...navItems];
+
+    // Add "My Orders" after Shop link for logged-in users
+    if (isLoggedIn) {
+      const shopIndex = baseItems.findIndex((item) => item.name === "Shop");
+      if (shopIndex !== -1) {
+        baseItems.splice(shopIndex + 1, 0, {
+          name: "My Orders",
+          path: "/myorders",
+          icon: <FiPackage />,
+        });
+      }
+    }
+
+    return baseItems;
+  };
+
+  const updatedNavItems = getNavItems();
 
   return (
     <nav
@@ -106,19 +135,21 @@ const Navbar = () => {
 
       <div className={navbarStyles.container}>
         <div className={navbarStyles.innerContainer}>
+          {/* Logo */}
           <Link to="/" className={navbarStyles.logoLink}>
             <img
               src={logo}
-              alt="GrocceryBasket"
+              alt="RushBasket Logo"
               className={`${navbarStyles.logoImage} ${
                 scrolled ? "h-10 w-10" : "h-12 w-12"
               }`}
             />
-            <span className={navbarStyles.logoText}>GrocceryBasket</span>
+            <span className={navbarStyles.logoText}>RushBasket</span>
           </Link>
 
+          {/* Desktop Nav */}
           <div className={navbarStyles.desktopNav}>
-            {navItems.map((item) => (
+            {updatedNavItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.path}
@@ -159,8 +190,11 @@ const Navbar = () => {
               </Link>
             ))}
           </div>
+
+          {/* Icons & Hamburger */}
           <div className={navbarStyles.iconsContainer}>
             {isLoggedIn ? (
+              // Logout button when logged in
               <button
                 onClick={handleLogout}
                 className={navbarStyles.loginLink}
@@ -170,11 +204,13 @@ const Navbar = () => {
                 <span className="ml-1 text-white">Logout</span>
               </button>
             ) : (
+              // Login link when not logged in
               <Link to="/login" className={navbarStyles.loginLink}>
                 <FiUser className={navbarStyles.loginIcon} />
                 <span className="ml-1 text-white">Login</span>
               </Link>
             )}
+
             <Link to="/cart" className={navbarStyles.cartLink}>
               <FaOpencart
                 className={`${navbarStyles.cartIcon} ${
@@ -185,6 +221,7 @@ const Navbar = () => {
                 <span className={navbarStyles.cartBadge}>{cartCount}</span>
               )}
             </Link>
+
             <button
               onClick={() => setIsOpen(!isOpen)}
               className={navbarStyles.hamburgerButton}
@@ -199,6 +236,8 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
       <div
         className={`
           ${navbarStyles.mobileOverlay}
@@ -228,9 +267,7 @@ const Navbar = () => {
                   alt="RushBasket Logo"
                   className={navbarStyles.mobileLogoImage}
                 />
-                <span className={navbarStyles.mobileLogoText}>
-                  GrocceryBasket
-                </span>
+                <span className={navbarStyles.mobileLogoText}>RushBasket</span>
               </div>
             </div>
             <button
@@ -241,8 +278,9 @@ const Navbar = () => {
               <FiX className="h-6 w-6 text-white" />
             </button>
           </div>
+
           <div className={navbarStyles.mobileItemsContainer}>
-            {navItems.map((item, idx) => (
+            {updatedNavItems.map((item, idx) => (
               <Link
                 key={item.name}
                 to={item.path}
@@ -258,6 +296,7 @@ const Navbar = () => {
                 <span className={navbarStyles.mobileItemText}>{item.name}</span>
               </Link>
             ))}
+
             <div className={navbarStyles.mobileButtons}>
               {isLoggedIn ? (
                 <button
@@ -285,9 +324,8 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Custom animations */}
       <style>{navbarStyles.customCSS}</style>
     </nav>
   );
 }
-
-export default Navbar

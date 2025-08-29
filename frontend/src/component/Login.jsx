@@ -3,6 +3,7 @@ import { footerStyles, loginStyles } from '../assets/dummyStyles'
 import { FaArrowLeft, FaCheck, FaEye, FaEyeSlash, FaLock, FaUser } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import Logout from './Logout'
+import axios from 'axios'
 
 const Login = () => {
 
@@ -42,27 +43,45 @@ const Login = () => {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.remember)
-    {
-      setError("You need to agree to terms and condition")
+    setError('');
+    if (!formData.remember) {
+      setError('You must agree to terms and conditions')
+      return;
     }
-    const token = 'mock_token';
-    const userData = {
-      email: formData.email,
-      token,
-      timestamp: new Date().toISOString(),
-    };
-    localStorage.setItem('authToken', token)
-    localStorage.setItem('userData', JSON.stringify(userData))
-    setError('')
-    setShowToast(true);
-    window.dispatchEvent(new Event("authStateChanged"));
-    setTimeout(() => {
-      navigate('/')
-    })
-    
+    try {
+      const response = await axios.post(
+        'http://localhost:4000/api/user/login',
+        {
+          email: formData.email,
+          password: formData.password,
+        },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      if (response.data.success) {
+        const { token, user } = response.data;
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userData', JSON.stringify(user));
+        setShowToast(true);
+        window.dispatchEvent(new Event('authStateChanged'));
+        setTimeout(() => {
+          navigate('/');
+
+        }, 1000);
+      }
+      else {
+        setError(response.data.message||'Login Failed');
+      }
+      
+    } catch (err) {
+      if (err.response && err.response.data) {
+        setError(err.response.data.message||'Login Error')
+      }
+      else {
+        setError('Unable to reach server')
+      }
+    }
   }
   
   return (

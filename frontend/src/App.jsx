@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
-import { CartProvider } from "./CartContent.";
+import { CartProvider } from "./CartContext";
 import Contact from "./pages/Contact";
 import Login from "./component/Login";
 import Signup from "./component/Signup";
@@ -9,10 +9,12 @@ import Logout from "./component/Logout";
 import Navbar from "./component/Navbar";
 import Items from "./pages/Items";
 import Cart from "./pages/Cart";
+import MyOrders from "./component/MyOrders";
+import Checkout from "./component/Checkout";
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
-    window.scrollTo(0,0)
+    window.scrollTo(0, 0);
   }, [pathname]);
   return null;
 };
@@ -26,14 +28,14 @@ const App = () => {
     });
   }, []);
   const [isAuthenticated, setIsAuthenticated] = useState(
-    Boolean(localStorage.getItem('authToken'))
-  )
+    Boolean(localStorage.getItem("authToken"))
+  );
   useEffect(() => {
     const handler = () => {
-      setIsAuthenticated(Boolean(localStorage.getItem('authToken')))
-    }
-    window.addEventListener('authStateChanged',handler)
-  },[])
+      setIsAuthenticated(Boolean(localStorage.getItem("authToken")));
+    };
+    window.addEventListener("authStateChanged", handler);
+  }, []);
   return (
     <CartProvider>
       <ScrollToTop />
@@ -42,11 +44,18 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/items" element={<Items />} />
-        <Route path="/cart" element={isAuthenticated ? <Cart /> : <Navigate replace to='/login' />} />
-        <Route path='/login' element={ <Login/>} />
-        <Route path='/signup' element={ <Signup/>} />
-        <Route path='/logout' element={<Logout />} />
-        <Route path='*' element={<Navigate replace to='/'/>}/>
+        <Route
+          path="/cart"
+          element={
+            isAuthenticated ? <Cart /> : <Navigate replace to="/login" />
+          }
+        />
+        <Route path='/checkout' element={<Checkout/>} />
+        <Route path='/myorders' element={<MyOrders/>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/logout" element={<Logout />} />
+        <Route path="*" element={<Navigate replace to="/" />} />
       </Routes>
     </CartProvider>
   );

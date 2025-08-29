@@ -1,60 +1,96 @@
-import React, { act, useEffect, useState } from 'react'
-import { itemsHomeStyles } from '../assets/dummyStyles';
-import BannerHome from './BannerHome';
-import { useNavigate } from 'react-router-dom';
-import { useCart } from '../CartContent.';
-import { FaChevronRight, FaMinus, FaPlus, FaShoppingCart, FaThList } from 'react-icons/fa';
-import {categories, products} from '../assets/dummyData'
+import React, { act, useEffect, useState } from "react";
+import { itemsHomeStyles } from "../assets/dummyStyles";
+import BannerHome from "./BannerHome";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../CartContext";
+import {
+  FaChevronRight,
+  FaMinus,
+  FaPlus,
+  FaShoppingCart,
+  FaThList,
+} from "react-icons/fa";
+import { categories } from "../assets/dummyData";
+import axios from "axios";
 
 const ItemsHome = () => {
+  const [products, setProducts] = useState([]);
   const [activeCategory, setActiveCategory] = useState(() => {
-    return localStorage.getItem('activeCategory')||'All'
-  })
+    return localStorage.getItem("activeCategory") || "All";
+  });
   useEffect(() => {
-    localStorage.getItem('activeCategory',activeCategory)
-  }, [activeCategory])
+    localStorage.getItem("activeCategory", activeCategory);
+  }, [activeCategory]);
+
+  useEffect(() => {
+    axios.get('http://localhost:4000/api/items')
+      .then(res => {
+        const normalized = res.data.map(p => ({
+          ...p,
+          id: p._id,
+        }));
+        setProducts(normalized);
+      })
+    .catch(console.error)
+  },[])
 
   const navigate = useNavigate();
-  const { cart,addToCart,updateQuantity,removeFromCart } = useCart();
+  const { cart, addToCart, updateQuantity, removeFromCart } = useCart();
 
-  
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useState("");
   const productMatchesSearch = (product, term) => {
     if (!term) return true;
     const cleanTerm = term.trim().toLowerCase();
     const searchWords = cleanTerm.split(/\s+/);
-    return searchWords.every(word =>
+    return searchWords.every((word) =>
       product.name.toLowerCase().includes(word)
-    )
-  }
-  const searchedProducts = searchTerm ?
-    products.filter(product => productMatchesSearch(product, searchTerm)) : (activeCategory === "All") ? products : products.filter((product) => product.category === activeCategory)
+    );
+  };
+  const searchedProducts = searchTerm
+    ? products.filter((product) => productMatchesSearch(product, searchTerm))
+    : activeCategory === "All"
+    ? products
+    : products.filter((product) => product.category === activeCategory);
   const getQuantity = (productId) => {
-    const item = cart.find((ci) => ci.id === productId)
+    const item = cart.find((ci) => ci.productId === productId);
     return item ? item.quantity : 0;
+  };
+
+  const getLineItemId = (productId) => {
+    const item = cart.find((ci) => ci > productId === productId);
+    return item ? item.id : null;
   }
-  const handleIncrease = (product) => addToCart(product, 1)
+  const handleIncrease = (product) => {
+    const lineId = getLineItemId(product._id);
+    if (lineId) {
+      updateQuantity(lineId,getQuantity(product._id)+1)
+    }
+    else {
+      addToCart(product._id,1);
+    }
+  }
   const handleDecrease = (product) => {
-    const qty = getQuantity(product.id)
-    if (qty > 1) updateQuantity(product.id, qty - 1)
-    else removeFromCart(product.id)
-  }
+    const qty = getQuantity(product._id);
+    const lineId = getLineItemId(product._id);
+    if (qty > 1&&lineId) updateQuantity(lineId, qty - 1);
+    else if (lineId) removeFromCart(lineId);
+  };
   const redirectToItemsPage = () => {
-    navigate('/items',{state:{category:activeCategory}})
-  }
+    navigate("/items", { state: { category: activeCategory } });
+  };
 
   const handleSearch = (term) => {
     setSearchTerm(term);
-  }
+  };
 
   const sidebarCategories = [
     {
       name: "All items",
-      icon: <FaThList className='text-lg' />,
-      value:"All"
+      icon: <FaThList className="text-lg" />,
+      value: "All",
     },
-    ...categories
-  ]
+    ...categories,
+  ];
   return (
     <div className={itemsHomeStyles.page}>
       <BannerHome onSearch={handleSearch} />
@@ -126,101 +162,113 @@ const ItemsHome = () => {
           </div>
           {searchTerm && (
             <div className={itemsHomeStyles.searchResults}>
-              <div className='flex items-center justify-center'>
-                <span className='text-emerald-700 font-medium'>
-                  Search Results for <span className='font-bold'>"{ searchTerm}"</span>
+              <div className="flex items-center justify-center">
+                <span className="text-emerald-700 font-medium">
+                  Search Results for{" "}
+                  <span className="font-bold">"{searchTerm}"</span>
                 </span>
-                <button onClick={() => searchTerm('')}>
-                  <div className='ml-4 text-emeral-500 p-1 rounded-full transition-colors'>
-                    <span className='text-small bg-emerald-100 px-2 py-1 rounded-full'>
-                      Clear 
+                <button onClick={() => searchTerm("")}>
+                  <div className="ml-4 text-emeral-500 p-1 rounded-full transition-colors">
+                    <span className="text-small bg-emerald-100 px-2 py-1 rounded-full">
+                      Clear
                     </span>
                   </div>
                 </button>
-
               </div>
             </div>
           )}
-          <div className='text-center mb-6'>
-            <h2 className={itemsHomeStyles.sectionTitle}
-            style={{fontFamily:"'Playfair Display',serif"}}
+          <div className="text-center mb-6">
+            <h2
+              className={itemsHomeStyles.sectionTitle}
+              style={{ fontFamily: "'Playfair Display',serif" }}
             >
-              {searchTerm?"SearchResults":(activeCategory==="All"?'Featured Products':`Best ${activeCategory}`)}
+              {searchTerm
+                ? "SearchResults"
+                : activeCategory === "All"
+                ? "Featured Products"
+                : `Best ${activeCategory}`}
             </h2>
-            <div className={itemsHomeStyles.sectionDivider}/>  
+            <div className={itemsHomeStyles.sectionDivider} />
           </div>
           <div className={itemsHomeStyles.productsGrid}>
             {searchedProducts.length > 0 ? (
               searchedProducts.map((product) => {
-                const qty = getQuantity(product.id)
+                const qty = getQuantity(product.id);
                 return (
                   <div key={product.id} className={itemsHomeStyles.productCard}>
                     <div className={itemsHomeStyles.imageContainer}>
-                      <img src={product.image} alt={product.name} className={itemsHomeStyles.productImage}
+                      <img
+                        src={`http://localhost:4000${product.imageUrl}`}
+                        alt={product.name}
+                        className={itemsHomeStyles.productImage}
                         onError={(e) => {
                           e.target.onError = null;
                           e.target.parentNode.innerHtml = `<div class='flex items-center justify-center w-full h-full bg-gray-200'>
                           <span class='text-gray-500 text-sm'>No Image</span>
-                          </div>`
-                      }}
+                          </div>`;
+                        }}
                       />
                       <div className={itemsHomeStyles.productContent}>
                         <h3 className={itemsHomeStyles.productTitle}>
-                          { product.name}</h3>
+                          {product.name}
+                        </h3>
                         <div className={itemsHomeStyles.priceContainer}>
                           <div>
                             <p className={itemsHomeStyles.currentPrice}>
                               ₹{product.price.toFixed(2)}
                             </p>
                             <span className={itemsHomeStyles.oldPrice}>
-                              {(product.price*1.2).toFixed(2)}
+                              {(product.price * 1.2).toFixed(2)}
                             </span>
                           </div>
                           {qty === 0 ? (
-                            <button onClick={() => handleIncrease(product)}
-                              className={itemsHomeStyles.addButton}>
-                              <FaShoppingCart className='mr-2' />
-                              Add                              
+                            <button
+                              onClick={() => handleIncrease(product)}
+                              className={itemsHomeStyles.addButton}
+                            >
+                              <FaShoppingCart className="mr-2" />
+                              Add
                             </button>
                           ) : (
-                              <div className={itemsHomeStyles.quantityControls}>
-                                <button onClick={() => handleDecrease(product)}
-                                  className={itemsHomeStyles.quantityButton}>
-                                  <FaMinus/>
-                                </button>
-                                <span className='font-bold'>{qty}</span>
-                                <button onClick={() => handleIncrease(product)}
+                            <div className={itemsHomeStyles.quantityControls}>
+                              <button
+                                onClick={() => handleDecrease(product)}
                                 className={itemsHomeStyles.quantityButton}
-                                >
-                                  <FaPlus/>
-                                </button>
-                              </div>
+                              >
+                                <FaMinus />
+                              </button>
+                              <span className="font-bold">{qty}</span>
+                              <button
+                                onClick={() => handleIncrease(product)}
+                                className={itemsHomeStyles.quantityButton}
+                              >
+                                <FaPlus />
+                              </button>
+                            </div>
                           )}
                         </div>
+                      </div>
                     </div>
-                    </div>
-
                   </div>
-                )
+                );
               })
             ) : (
-                <div className={itemsHomeStyles.noProducts}>
-                  <div className={itemsHomeStyles.noProductsText}>
-                    No Product Found
-                  </div>
-                  <button onClick={() => setSearchTerm('')}>
-                    Clear Search
-                  </button>
+              <div className={itemsHomeStyles.noProducts}>
+                <div className={itemsHomeStyles.noProductsText}>
+                  No Product Found
                 </div>
+                <button onClick={() => setSearchTerm("")}>Clear Search</button>
+              </div>
             )}
-
           </div>
           {!searchTerm && (
-            <div className='text-center'>
-              <button onClick={redirectToItemsPage}
-              className={itemsHomeStyles.viewAllButton}
-              >View All{activeCategory === 'All' ? 'Products' : activeCategory}
-                <FaChevronRight className='ml-3'/>
+            <div className="text-center">
+              <button
+                onClick={redirectToItemsPage}
+                className={itemsHomeStyles.viewAllButton}
+              >
+                View All{activeCategory === "All" ? "Products" : activeCategory}
+                <FaChevronRight className="ml-3" />
               </button>
             </div>
           )}
@@ -228,8 +276,6 @@ const ItemsHome = () => {
       </div>
     </div>
   );
-}
+};
 
 export default ItemsHome;
-
-

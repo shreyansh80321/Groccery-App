@@ -1,29 +1,40 @@
-import React from 'react'
-import { cartStyles } from '../assets/dummyStyles';
-import { Link } from 'react-router-dom'
+import React from "react";
+import { cartStyles } from "../assets/dummyStyles";
+import { Link } from "react-router-dom";
 import { FiArrowLeft, FiMinus, FiPlus, FiTrash2 } from "react-icons/fi";
-import { useCart } from '../CartContent.';
+import { useCart } from "../CartContext";
 
 const CartPage = () => {
-  const { cart, removeFromCart,
-      updateQuantity,
-      clearCart,
-      getCartTotal
-  } = useCart();
-  const handleQuantityChange = (itemId, change) => {
-    const item = cart.find((i) => i.id === itemId)
-    if (!item) return;
-    const newQuantity = item.quantity + change;
-    if (newQuantity > 0)
-    {
-      updateQuantity(itemId, newQuantity);
+  const { cart, removeFromCart, updateQuantity, clearCart } =
+    useCart();
+    const getItemPrice = (item) => item.price ?? item.product?.price ?? 0;
+    const getItemName = (item) =>
+      item.name ?? item.product?.name ?? "Unnamed item";
+    const getItemImage = (item) => {
+      const path = item.image ?? item.product?.imageUrl ?? "";
+      return path ? `http://localhost:4000${path}` : "";
+  };
+  
+  const subTotal = cart.reduce((sum, item) => {
+    return sum + getItemPrice(item) * item.quantity;
+  }, 0);
+  
+  
+  const handleQuantityChange = async (productId, delta) => {
+    // Find the cart item corresponding to this product
+    const cartItem = cart.find((item) => item.productId === productId);
 
+    if (!cartItem) return; // If item is not in cart, do nothing
+
+    const newQty = cartItem.quantity + delta;
+
+    if (newQty > 0) {
+      await updateQuantity(cartItem.id, newQty); // Use CartItem ID here
+    } else {
+      await removeFromCart(cartItem.id); // Also use CartItem ID
     }
-    else
-    {
-      removeFromCart(itemId)
-    }
-  }
+  };
+
   if (cart.length === 0) {
     return (
       <div className={cartStyles.pageContainer}>
@@ -35,8 +46,10 @@ const CartPage = () => {
           <div className={cartStyles.emptyCartContainer}>
             <div className={cartStyles.emptyCartIcon}>🛒</div>
             <h1 className={cartStyles.emptyCartHeading}>Your Cart is Empty</h1>
-            <p className={cartStyles.emptyCartText}>Looks like you have not added anything in cart</p>
-            <Link to='/items' className={cartStyles.emptyCartButton}>
+            <p className={cartStyles.emptyCartText}>
+              Looks like you have not added anything in cart
+            </p>
+            <Link to="/items" className={cartStyles.emptyCartButton}>
               Browse Products
             </Link>
           </div>
@@ -56,45 +69,61 @@ const CartPage = () => {
         <div className={cartStyles.cartGrid}>
           <div className={cartStyles.cartItemsSection}>
             <div className={cartStyles.cartItemsGrid}>
-              {cart.map((item) => (
-                <div key={item.id} className={cartStyles.cartItemCard}>
-                  <div className={cartStyles.cartItemImageContainer}>
-                    <img
-                      src={item.image}
-                      alt={item.image}
-                      className={cartStyles.cartItemImage}
-                    />
-                  </div>
-                  <h3 className={cartStyles.cartItemName}>{item.name}</h3>
-                  <p className={cartStyles.cartItemPrice}>
-                    ₹{(item.price ?? 0).toFixed(2)}
-                  </p>
-                  <div className={cartStyles.cartItemQuantityContainer}>
+              {cart.map(item => {
+                const id = item._id||item.id;
+                const name = getItemName(item);
+                const price = getItemPrice(item);
+                const img = getItemImage(item);
+                return (
+                  <div key={id} className={cartStyles.cartItemCard}>
+                    <div className={cartStyles.cartItemImageContainer}>
+                      {img ? (
+                        <img
+                          src={img}
+                          alt={name}
+                          className={cartStyles.cartItemImage}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.source = "/no-image.png";
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-600 rounded">
+                          No Image
+                        </div>
+                      )}
+                    </div>
+                    <h3 className={cartStyles.cartItemName}>{name}</h3>
+                    <p className={cartStyles.cartItemPrice}>
+                      ₹{price.toFixed(2)}
+                    </p>
+                    <div className={cartStyles.cartItemQuantityContainer}>
+                      <button
+                        onClick={() => handleQuantityChange(item.productId, -1)}
+                        className={cartStyles.cartItemQuantity}
+                      >
+                        <FiMinus />
+                      </button>
+                      <span className={cartStyles.cartItemQuantity}>
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => handleQuantityChange(item.productId, 1)}
+                        className={cartStyles.cartItemQuantityButton}
+                      >
+                        <FiPlus />
+                      </button>
+                    </div>
                     <button
-                      className={cartStyles.cartItemQuantityButton}
-                      onClick={() => handleQuantityChange(item.id, -1)}
+                      onClick={() => removeFromCart(id)}
+                      className={cartStyles.cartItemRemoveButton}
                     >
-                      <FiMinus />
-                    </button>
-                    <span className={cartStyles.cartItemQuantity}>
-                      {item.quantity}
-                    </span>
-                    <button
-                      onClick={() => handleQuantityChange(item.id, 1)}
-                      className={cartStyles.cartItemQuantityButton}
-                    >
-                      <FiPlus />
+                      <FiTrash2 className="mr-1" />
+                      Remove
                     </button>
                   </div>
-                  <button
-                    onClick={() => removeFromCart(item.id)}
-                    className={cartStyles.cartItemRemoveButton}
-                  >
-                    <FiTrash2 className="mr-1" />
-                    Remove
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
           <div className="lg:col-span-1">
@@ -104,7 +133,7 @@ const CartPage = () => {
                 <div className={cartStyles.orderSummaryRow}>
                   <span className={cartStyles.orderSummaryLabel}>Subtotal</span>
                   <span className={cartStyles.orderSummaryValue}>
-                    ₹{getCartTotal().toFixed(2)}
+                    ₹{subTotal.toFixed(2)}
                   </span>
                 </div>
                 <div className={cartStyles.orderSummaryRow}>
@@ -116,7 +145,7 @@ const CartPage = () => {
                     Taxes(5%)
                   </span>
                   <span className={cartStyles.orderSummaryValue}>
-                    ₹{(getCartTotal() * 0.05).toFixed(2)}
+                    ₹{(subTotal * 0.05).toFixed(2)}
                   </span>
                 </div>
                 <div className={cartStyles.orderSummaryDivider}></div>
@@ -126,14 +155,16 @@ const CartPage = () => {
                   </span>
                   <span className={cartStyles.orderSummaryTotalValue}>
                     {" "}
-                    ₹{(getCartTotal() * 1.05).toFixed(2)}
+                    ₹{(subTotal * 1.05).toFixed(2)}
                   </span>
                 </div>
               </div>
-              <button className={cartStyles.checkoutButton}>Proceed to Checkout</button>
+              <button className={cartStyles.checkoutButton}>
+                <Link to='/checkout'>Proceed to cehckout</Link>
+              </button>
               <div className={cartStyles.continueShoppingBottom}>
-                <Link to='items' className={cartStyles.continueShopping}>
-                  <FiArrowLeft className='mr-2' />
+                <Link to="items" className={cartStyles.continueShopping}>
+                  <FiArrowLeft className="mr-2" />
                   Continue Shopping
                 </Link>
               </div>
@@ -143,6 +174,6 @@ const CartPage = () => {
       </div>
     </div>
   );
-}
+};
 
-export default CartPage
+export default CartPage;

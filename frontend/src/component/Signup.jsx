@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import { signupStyles } from '../assets/dummyStyles';
 import { FaArrowLeft, FaCheck, FaEnvelope, FaEye, FaEyeSlash, FaLock, FaUser } from 'react-icons/fa';
+import axios from 'axios'
 
 const Signup = () => {
   const [formData, setFormData] = useState({
       name:"",
       email: "",
       password: "",
-      remember: true,
+      remember: false,
     });
-    const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState('');
 
     const [showToast, setShowToast] = useState(false);
     const [errors, setErrors] = useState({});
@@ -36,6 +38,9 @@ const Signup = () => {
       if (errors[name]) {
         setErrors(prev=>({...prev,[name]:''}))
       }
+      if (apiError) {
+        setApiError("");
+      }
   };
   
     const validate = () => {
@@ -45,22 +50,42 @@ const Signup = () => {
       else if (!/\S+@\S+\.\S+/.test(formData.email))
         newErrors.email = "Invalid email format";
       if (!formData.password) newErrors.password = "Password is required";
+      if (!formData.remember) newErrors.remember = 'You must agree to terms and conditions';
 
       setErrors(newErrors);
       return Object.keys(newErrors).length === 0;
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit =async (e) => {
     e.preventDefault();
-    if (validate()) {
-      setShowToast(true);
+    if (!validate()) return;
+    try {
+      const res = await axios.post(
+        'http://localhost:4000/api/user/register',
+        {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      if (res.data.success) {
+        setShowToast(true);
+      }
+      else {
+        setApiError(res.data.message||'Registration failed')
+      }
+    } catch (err) {
+      if (err.response && err.response.data) {
+        setApiError(err.response.data.message);
+      }
+      else {
+        setApiError('Server Error');
+      }
     }
   }
-  const togglePasswordVisibility = (field) => {
-    setShowPassword(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }))
+  const togglePasswordVisibility = () => {
+    setShowPassword(v => !v);
   }
   return (
     <div className={signupStyles.page}>
@@ -74,6 +99,8 @@ const Signup = () => {
           Account Created Successfully!
         </div>
       )}
+
+      {apiError && <p className={signupStyles.error}>{apiError}</p>}
       <div className={signupStyles.signupCard}>
         <div className={signupStyles.logoContainer}>
           <div className={signupStyles.logoOuter}>
