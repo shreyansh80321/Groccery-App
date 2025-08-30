@@ -58,7 +58,7 @@ const ContactUs = () => {
       )}
       <div className={contactStyles.centeredContainer}>
         <div className={contactStyles.headingContainer}>
-          <h1 className={contactStyles.heading}>Contact FreshGrocers</h1>
+          <h1 className={contactStyles.heading}>Contact Us</h1>
           <div className={contactStyles.divider} />
         </div>
         <br />

@@ -144,7 +144,7 @@ export default function Navbar() {
                 scrolled ? "h-10 w-10" : "h-12 w-12"
               }`}
             />
-            <span className={navbarStyles.logoText}>RushBasket</span>
+            <span className={navbarStyles.logoText}>GroceryBasket</span>
           </Link>
 
           {/* Desktop Nav */}
