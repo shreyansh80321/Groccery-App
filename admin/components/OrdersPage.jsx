@@ -369,7 +369,7 @@ const OrdersPage = () => {
                         >
                           {item.imageUrl ? (
                             <img
-                              src={`http:localhost:4000${item.imageUrl}`}
+                              src={`https://groccery-app-backend.onrender.com${item.imageUrl}`}
                               alt={item.name}
                               className={styles.modalOrderImage}
                             />
