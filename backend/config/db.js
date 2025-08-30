@@ -1,17 +1,10 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-
-dotenv.config();
+import mongoose from 'mongoose'
 
 export const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log("✅ DB Connected");
-  } catch (error) {
-    console.error("❌ DB Connection Failed:", error.message);
-    process.exit(1);
-  }
-};
+  await mongoose
+    .connect(
+      "mongodb+srv://sibersuper1122_db_user:shreyanshnancy8032180321@cluster0.40bqant.mongodb.net/GroceryBasket"
+    )
+    .then(() => console.log("DB Connected"));
+
+}
