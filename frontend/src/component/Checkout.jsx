@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { cartStyles, checkoutStyles } from '../assets/dummyStyles'
 import { useCart } from '../CartContext'
 import { Link, useNavigate } from 'react-router-dom';
-import { FiUser, FiArrowLeft, FiCreditCard, FiPackage } from "react-icons/fi";
+import { FiUser, FiArrowLeft, FiCreditCard, FiPackage,FiCheck,FiTruck } from "react-icons/fi";
 import axios from 'axios';
 
 
@@ -21,7 +21,7 @@ const Checkout = () =>{
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = e => {
-    const { name, vale } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: "" }));
   }
@@ -214,7 +214,7 @@ const Checkout = () =>{
                     <input
                       type="radio"
                       name="paymentMethod"
-                      vlaue="COD"
+                      value="COD"
                       checked={formData.paymentMethod === "COD"}
                       onChange={handleChange}
                       className="h-5 w-5 text-emerald-600 focus:ring-emerald-500"
@@ -233,7 +233,7 @@ const Checkout = () =>{
                     <input
                       type="radio"
                       name="paymentMethod"
-                      vlaue="Online"
+                      value="Online"
                       checked={formData.paymentMethod === "Online"}
                       onChange={handleChange}
                       className="h-5 w-5 text-emerald-600 focus:ring-emerald-500"
@@ -253,11 +253,109 @@ const Checkout = () =>{
           </div>
 
           <div className={checkoutStyles.card}>
-            <h2 className={checkoutStyles.sectionTitle}><FiPackage className='mr-2 text-emerald-300' />Order Summary</h2>
-            <div className='mb-6'>
-              <h3 className='font-medeium text-emerald-300 mb-4'> </h3>
+            <h2 className={checkoutStyles.sectionTitle}>
+              <FiPackage className="mr-2 text-emerald-300" />
+              Order Summary
+            </h2>
+            <div className="mb-6">
+              <h3 className="font-medeium text-emerald-300 mb-4"> </h3>
+              <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                {cart.map((item) => (
+                  <div key={item.id} className={checkoutStyles.cartItem}>
+                    <div className={checkoutStyles.cartImage}>
+                      {item.imageUrl ? (
+                        <img
+                          src={`http://localhost:4000${item.imageUrl}`}
+                          alt={item.name}
+                          className="h-full w-full object-cover rounded"
+                          onError={(e) => {
+                            e.targetonerror = null;
+                            e.target.src = "/no-image.png";
+                          }}
+                        />
+                      ) : (
+                        <FiPackage className="text-emerald-500" />
+                      )}
+                    </div>
+                    <div className="flex-grow">
+                      <div className="font-medium  text-emerald-100">
+                        {item.name}
+                      </div>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-emerald-400">
+                          ₹{item.price.toFixed(2)} x {item.quantity}
+                        </span>
+                        <span className="font-medium text-emerald-100">
+                          ₹{(item.price * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
+            <div className="border-t border-emerald-700/50 pt-2 space-y-3">
+              <div className="flex justify-between">
+                <span className="text-emerald-300">SubTotal</span>
+                <span className="font-medium text-emerald-100">
+                  ₹{total.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-emerald-300">Delivery</span>
+                <span className="font-medium text-emerald-400">Free</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-emerald-300">tax (5%)</span>
+                <span className="font-medium text-emerald-100">
+                  ₹{tax.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between pt-3 mt-3 border-t border-emerald-700/50">
+                <span className="text-lg font-bold text-emerald-100">
+                  Total
+                </span>
+                <span className="text-lg font-bold text-emerald-300">
+                  ₹{grandTotal.toFixed(2)}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className={`${checkoutStyles.button} ${
+                isSubmitting
+                  ? checkoutStyles.disabledButton
+                  : checkoutStyles.submitButton
+              }mt-6`}
+            >
+              {isSubmitting ? (
+                <FiCheck className="mr-2 animate-spin" />
+              ) : (
+                <FiCheck className="mr-2" />
+              )}
+              {isSubmitting ? "Processing Order" : "Place Order"}
+            </button>
+            <p className="mt-4 text-center text-sm text-emerald-400">
+              By placing order you agree to our{" "}
+              <a href="#" className={checkoutStyles.link}>
+                Terms
+              </a>{" "}
+              and{" "}
+              <a href="#" className={checkoutStyles.link}>
+                policy{" "}
+              </a>
+            </p>
           </div>
+        </div>
+        <div className={checkoutStyles.deliveryInfo}>
+          <h3 className={checkoutStyles.deliveryTitle}>
+            <FiTruck className="mr-2" />
+            Delivery Information
+          </h3>
+          <p className={checkoutStyles.deliveryText}>
+            We deliver within 30 mins, but not same for night
+          </p>
         </div>
       </div>
     </div>

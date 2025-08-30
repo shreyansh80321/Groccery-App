@@ -11,6 +11,7 @@ import Items from "./pages/Items";
 import Cart from "./pages/Cart";
 import MyOrders from "./component/MyOrders";
 import Checkout from "./component/Checkout";
+import VerifyPaymentPage from "./pages/VerifyPaymentPage";
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -50,8 +51,9 @@ const App = () => {
             isAuthenticated ? <Cart /> : <Navigate replace to="/login" />
           }
         />
-        <Route path='/checkout' element={<Checkout/>} />
-        <Route path='/myorders' element={<MyOrders/>} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/myorders/verify" element={<VerifyPaymentPage/>} />
+        <Route path="/myorders" element={<MyOrders />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/logout" element={<Logout />} />

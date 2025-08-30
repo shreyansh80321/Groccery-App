@@ -160,7 +160,7 @@ const CartPage = () => {
                 </div>
               </div>
               <button className={cartStyles.checkoutButton}>
-                <Link to='/checkout'>Proceed to cehckout</Link>
+                <Link to='/checkout'>Proceed to checkout</Link>
               </button>
               <div className={cartStyles.continueShoppingBottom}>
                 <Link to="items" className={cartStyles.continueShopping}>
