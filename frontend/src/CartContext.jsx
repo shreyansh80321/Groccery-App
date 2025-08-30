@@ -44,7 +44,7 @@ export const CartProvider = ({ children }) => {
 
   const fetchCart = async () => {
     try {
-      const { data } = await axios.get("http://localhost:4000/api/cart", {
+      const { data } = await axios.get("https://groccery-app-backend.onrender.com/api/cart", {
         ...getAuthHeader(),
         withCredentials: true,
       });
@@ -66,7 +66,7 @@ export const CartProvider = ({ children }) => {
   const refreshCart = async () => {
     try {
       const { data } = await axios.get(
-        "http://localhost:4000/api/cart",
+        "https://groccery-app-backend.onrender.com/api/cart",
         getAuthHeader()
       );
 
@@ -85,7 +85,7 @@ export const CartProvider = ({ children }) => {
   const addToCart = async (productId, quantity = 1) => {
     try {
       await axios.post(
-        "http://localhost:4000/api/cart",
+        "https://groccery-app-backend.onrender.com/api/cart",
         { productId, quantity },
         getAuthHeader()
       );
@@ -98,7 +98,7 @@ export const CartProvider = ({ children }) => {
   const updateQuantity = async (lineId, quantity) => {
     try {
       await axios.put(
-        `http://localhost:4000/api/cart/${lineId}`,
+        `https://groccery-app-backend.onrender.com/api/cart/${lineId}`,
         { quantity },
         getAuthHeader()
       );
@@ -111,7 +111,7 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (lineId) => {
     try {
       await axios.delete(
-        `http://localhost:4000/api/cart/${lineId}`,
+        `https://groccery-app-backend.onrender.com/api/cart/${lineId}`,
         getAuthHeader()
       );
       await refreshCart();
@@ -123,7 +123,7 @@ export const CartProvider = ({ children }) => {
   const clearCart = async () => {
     try {
       await axios.post(
-        "http://localhost:4000/api/cart/clear",
+        "https://groccery-app-backend.onrender.com/api/cart/clear",
         {},
         getAuthHeader()
       );

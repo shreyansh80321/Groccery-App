@@ -21,7 +21,7 @@ const VerifyPaymentPage = () => {
       setStatusMsg('No Session id provided');
       return;
     }
-    axios.get('http://localhost:4000/api/orders/confirm',{
+    axios.get('https://groccery-app-backend.onrender.com/api/orders/confirm',{
       params: { session_id },
       headers:token?{Authorization: `Bearer ${token}`}:{},
     })

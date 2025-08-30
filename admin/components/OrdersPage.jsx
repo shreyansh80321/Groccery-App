@@ -23,7 +23,7 @@ const OrdersPage = () => {
   ];
   const fetchOrders = async () => {
     try {
-      const { data } = await axios.get("http://localhost:4000/api/orders");
+      const { data } = await axios.get("https://groccery-app-backend.onrender.com/api/orders");
       setOrders(data);
       setFilteredOrders(data);
     } catch (err) {
@@ -58,7 +58,7 @@ const OrdersPage = () => {
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       await axios.put(
-        `http://localhost:4000/api/orders/${orderId}`,
+        `https://groccery-app-backend.onrender.com/api/orders/${orderId}`,
         {status:newStatus}
       )
       setOrders((prev) =>

@@ -64,7 +64,7 @@ const Checkout = () =>{
     try {
       const token = localStorage.getItem('authToken');
       const res = await axios.post(
-        'http://localhost:4000/api/orders',
+        'https://groccery-app-backend.onrender.com/api/orders',
         order,
         {
           headers: {
@@ -265,7 +265,7 @@ const Checkout = () =>{
                     <div className={checkoutStyles.cartImage}>
                       {item.imageUrl ? (
                         <img
-                          src={`http://localhost:4000${item.imageUrl}`}
+                          src={`https://groccery-app-backend.onrender.com${item.imageUrl}`}
                           alt={item.name}
                           className="h-full w-full object-cover rounded"
                           onError={(e) => {

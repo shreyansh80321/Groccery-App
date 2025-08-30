@@ -14,7 +14,7 @@ const MyOrders = () => {
   const userEmail = userData.email || '';
   const fetchAndFilterOrders = async () => {
     try {
-      const resp = await axios.get('http://localhost:4000/api/orders')
+      const resp = await axios.get('https://groccery-app-backend.onrender.com/api/orders')
       const allOrders = resp.data;
       const mine = allOrders.filter(o => o.customer?.email?.toLowerCase() === userEmail.toLowerCase());
       setOrders(mine);

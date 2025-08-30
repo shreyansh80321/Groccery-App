@@ -59,7 +59,7 @@ const AddItemPage = () => {
            body.append("image", formData.image);
       }
       
-      const res = await axios.post("http://localhost:4000/api/items", body, { headers: { "Content-Type": "multipart/form-data" }, })
+      const res = await axios.post("https://groccery-app-backend.onrender.com/api/items", body, { headers: { "Content-Type": "multipart/form-data" }, })
       console.log('Created', res.data);
       alert('Product added');
       setFormData(initialFormState);
