@@ -1,27 +1,27 @@
-import React from 'react'
-import { addItemPageStyles as styles } from '../src/assets/adminStyles'
-import { useState } from 'react';
-import { useRef } from 'react';
-import axios from 'axios';
-import { FiSave, FiUpload, FiX } from 'react-icons/fi';
+import React from "react";
+import { addItemPageStyles as styles } from "../src/assets/adminStyles";
+import { useState } from "react";
+import { useRef } from "react";
+import axios from "axios";
+import { FiSave, FiUpload, FiX } from "react-icons/fi";
 
 const initialFormState = {
-  name: '',
-  description: '',
-  category: '',
-  oldPrice: '',
-  price: '',
+  name: "",
+  description: "",
+  category: "",
+  oldPrice: "",
+  price: "",
   image: null,
-  preview: '',
+  preview: "",
 };
 
 const categories = [
-  'Fruits',
-  'Vegetables',
-  'Dairy & Eggs',
-  'Meat & Seafood',
-  'Bakery',
-  'Pantry',
+  "Fruits",
+  "Vegetables",
+  "Dairy & Eggs",
+  "Meat & Seafood",
+  "Bakery",
+  "Pantry",
 ];
 
 const AddItemPage = () => {
@@ -30,47 +30,53 @@ const AddItemPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((f)=>({...f,[name]:value}))
-  }
+    setFormData((f) => ({ ...f, [name]: value }));
+  };
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setFormData((f) => ({
       ...f,
       image: file,
-      preview: URL.createObjectURL(file)
-    }))
-  }
+      preview: URL.createObjectURL(file),
+    }));
+  };
 
   const removeImage = () => {
     setFormData((f) => ({ ...f, image: null, preview: "" }));
     fileInputRef.current.value = "";
-  }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const body = new FormData();
-         body.append("name", formData.name);
-         body.append("description", formData.description);
-         body.append("category", formData.category);
-         body.append("oldPrice", formData.oldPrice);
-         body.append("price", formData.price);
-         if (formData.image) {
-           body.append("image", formData.image);
+      body.append("name", formData.name);
+      body.append("description", formData.description);
+      body.append("category", formData.category);
+      body.append("oldPrice", formData.oldPrice);
+      body.append("price", formData.price);
+      if (formData.image) {
+        body.append("image", formData.image);
       }
-      
-      const res = await axios.post("https://groccery-app-backend.onrender.com/api/items", body, { headers: { "Content-Type": "multipart/form-data" }, })
-      console.log('Created', res.data);
-      alert('Product added');
+
+      const res = await axios.post(
+        "https://groccery-app-backend.onrender.com/api/items",
+        body,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      console.log("Created", res.data);
+      alert("Product added");
       setFormData(initialFormState);
       fileInputRef.current.value = "";
     } catch (err) {
-      console.error(err)
-      alert('Upload failed')
+      console.error(err);
+      alert("Upload failed");
     }
-  }
+  };
 
-  const {name,description,category,oldPrice,price,preview}=formData
+  const { name, description, category, oldPrice, price, preview } = formData;
   return (
     <div className={styles.pageContainer}>
       <div className={styles.innerContainer}>
@@ -191,6 +197,6 @@ const AddItemPage = () => {
       </div>
     </div>
   );
-}
+};
 
-export default AddItemPage
+export default AddItemPage;

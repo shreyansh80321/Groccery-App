@@ -1,45 +1,64 @@
-import React, { useEffect } from 'react'
-import { ordersPageStyles } from '../assets/dummyStyles';
-import axios from 'axios';
-import {FiArrowLeft, FiMail, FiMapPin, FiPackage, FiPhone, FiSearch, FiUser, FiX} from 'react-icons/fi'
-import { useState } from 'react';
+import React, { useEffect } from "react";
+import { ordersPageStyles } from "../assets/dummyStyles";
+import axios from "axios";
+import {
+  FiArrowLeft,
+  FiMail,
+  FiMapPin,
+  FiPackage,
+  FiPhone,
+  FiSearch,
+  FiUser,
+  FiX,
+} from "react-icons/fi";
+import { useState } from "react";
 
 const MyOrders = () => {
-    const [orders, setOrders] = useState([]);
-    const [filteredOrders, setFilteredOrders] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-  const userEmail = userData.email || '';
+  const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+  const userEmail = userData.email || "";
   const fetchAndFilterOrders = async () => {
     try {
-      const resp = await axios.get('https://groccery-app-backend.onrender.com/api/orders')
+      const resp = await axios.get(
+        "https://groccery-app-backend.onrender.com/api/orders"
+      );
       const allOrders = resp.data;
-      const mine = allOrders.filter(o => o.customer?.email?.toLowerCase() === userEmail.toLowerCase());
+      const mine = allOrders.filter(
+        (o) => o.customer?.email?.toLowerCase() === userEmail.toLowerCase()
+      );
       setOrders(mine);
     } catch (err) {
-      console.error('Error fetching orders', err)
+      console.error("Error fetching orders", err);
     }
-  }
+  };
   useEffect(() => {
     fetchAndFilterOrders();
-  }, [])
-  
+  }, []);
+
   useEffect(() => {
     setFilteredOrders(
-      orders.filter(o=>o.orderId.toLowerCase().includes(searchTerm.toLowerCase())||o.items.some((i)=>i.name.toLowerCase().includes(searchTerm.toLowerCase())))
-    )
-  }, [orders, searchTerm])
-    const viewOrderDetails = (order) => {
+      orders.filter(
+        (o) =>
+          o.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          o.items.some((i) =>
+            i.name.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+      )
+    );
+  }, [orders, searchTerm]);
+  const viewOrderDetails = (order) => {
     setSelectedOrder(order);
     setIsDetailModalOpen(true);
-  }
+  };
 
   const closeModal = () => {
     setIsDetailModalOpen(false);
     setSelectedOrder(null);
-  }
+  };
   return (
     <div className={ordersPageStyles.page}>
       <div className={ordersPageStyles.container}>
@@ -193,18 +212,21 @@ const MyOrders = () => {
                     {selectedOrder.customer.phone}
                   </div>
                 </div>
-                <div className='flex items-start mt-3'>
-                  <FiMapPin className='text-emerald-400 mr-2 mt-1 flex-shrink-0' />
-                  <div className='text-emerald-300'>{selectedOrder.customer.address}
+                <div className="flex items-start mt-3">
+                  <FiMapPin className="text-emerald-400 mr-2 mt-1 flex-shrink-0" />
+                  <div className="text-emerald-300">
+                    {selectedOrder.customer.address}
                   </div>
                 </div>
               </div>
             </div>
             {selectedOrder.notes && (
               <div className={ordersPageStyles.modalSection}>
-                <h3 className={ordersPageStyles.modalSectionTitle}>Delivery Notes</h3>
-                <div className='bg-emerald-800/50 border-1-4 border-emerald-400 p-4 rounded-lg'>
-                  <p className='text-emerald-200'>{selectedOrder.notes}</p>
+                <h3 className={ordersPageStyles.modalSectionTitle}>
+                  Delivery Notes
+                </h3>
+                <div className="bg-emerald-800/50 border-1-4 border-emerald-400 p-4 rounded-lg">
+                  <p className="text-emerald-200">{selectedOrder.notes}</p>
                 </div>
               </div>
             )}
@@ -213,6 +235,6 @@ const MyOrders = () => {
       )}
     </div>
   );
-}
+};
 
-export default MyOrders
+export default MyOrders;

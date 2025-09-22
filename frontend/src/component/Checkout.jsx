@@ -1,12 +1,18 @@
-import React, { useState } from 'react'
-import { cartStyles, checkoutStyles } from '../assets/dummyStyles'
-import { useCart } from '../CartContext'
-import { Link, useNavigate } from 'react-router-dom';
-import { FiUser, FiArrowLeft, FiCreditCard, FiPackage,FiCheck,FiTruck } from "react-icons/fi";
-import axios from 'axios';
+import React, { useState } from "react";
+import { cartStyles, checkoutStyles } from "../assets/dummyStyles";
+import { useCart } from "../CartContext";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  FiUser,
+  FiArrowLeft,
+  FiCreditCard,
+  FiPackage,
+  FiCheck,
+  FiTruck,
+} from "react-icons/fi";
+import axios from "axios";
 
-
-const Checkout = () =>{
+const Checkout = () => {
   const { cart, getCartTotal, clearCart } = useCart();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -17,29 +23,29 @@ const Checkout = () =>{
     paymentMethod: "COD",
     notes: "",
   });
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: "" }));
-  }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
   const validateForm = () => {
     const newErrors = {};
-     if (!formData.name.trim()) newErrors.name = "Name is required";
-     if (!formData.email.trim()) newErrors.email = "Email is required";
-     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-       newErrors.email = "Invalid email format";
-     if (!formData.phone.trim()) newErrors.phone = "Phone is required";
-     else if (!/^\d{10}$/.test(formData.phone))
-       newErrors.phone = "Invalid phone number";
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+      newErrors.email = "Invalid email format";
+    if (!formData.phone.trim()) newErrors.phone = "Phone is required";
+    else if (!/^\d{10}$/.test(formData.phone))
+      newErrors.phone = "Invalid phone number";
     if (!formData.address.trim()) newErrors.address = "Address is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }
+  };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
     setIsSubmitting(true);
@@ -62,17 +68,17 @@ const Checkout = () =>{
       notes: formData.notes,
     };
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       const res = await axios.post(
-        'https://groccery-app-backend.onrender.com/api/orders',
+        "https://groccery-app-backend.onrender.com/api/orders",
         order,
         {
           headers: {
-            'Content-Type': 'application/json',
-            ...(token && { Authorization: `Bearer ${token}` })
-          }
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
         }
-      )
+      );
       if (res.data.checkoutUrl) {
         window.location.href = res.data.checkoutUrl;
         return;
@@ -82,16 +88,14 @@ const Checkout = () =>{
         const displayId = createdOrder.orderId || createdOrder._id;
         clearCart();
         alert(`Order Placed successfully! Order ID: ${displayId}`);
-        navigate('/')
-      }
-      else {
-        alert('Order failed try again.')
+        navigate("/");
+      } else {
+        alert("Order failed try again.");
       }
     } catch (err) {
-      console.error(err)
-      alert('Failed to place order. Please try again later')
-    }
-    finally {
+      console.error(err);
+      alert("Failed to place order. Please try again later");
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -360,6 +364,6 @@ const Checkout = () =>{
       </div>
     </div>
   );
-}
+};
 
-export default Checkout
+export default Checkout;

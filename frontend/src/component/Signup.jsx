@@ -1,92 +1,97 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom';
-import { signupStyles } from '../assets/dummyStyles';
-import { FaArrowLeft, FaCheck, FaEnvelope, FaEye, FaEyeSlash, FaLock, FaUser } from 'react-icons/fa';
-import axios from 'axios'
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { signupStyles } from "../assets/dummyStyles";
+import {
+  FaArrowLeft,
+  FaCheck,
+  FaEnvelope,
+  FaEye,
+  FaEyeSlash,
+  FaLock,
+  FaUser,
+} from "react-icons/fa";
+import axios from "axios";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-      name:"",
-      email: "",
-      password: "",
-      remember: false,
-    });
+    name: "",
+    email: "",
+    password: "",
+    remember: false,
+  });
   const [showPassword, setShowPassword] = useState(false);
-  const [apiError, setApiError] = useState('');
+  const [apiError, setApiError] = useState("");
 
-    const [showToast, setShowToast] = useState(false);
-    const [errors, setErrors] = useState({});
+  const [showToast, setShowToast] = useState(false);
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   useEffect(() => {
     if (showToast) {
-    
       const timer = setTimeout(() => {
         setShowToast(false);
-        navigate('/login')
-      
-      }, 2000)
+        navigate("/login");
+      }, 2000);
       return () => clearTimeout(timer);
     }
-  }, [showToast, navigate])
-  
-    const handleChange = (e) => {
-      const { name, value, type, checked } = e.target;
-      setFormData((prev) => ({
-        ...prev,
-        [name]: type === "checkbox" ? checked : value,
-      }));
-      if (errors[name]) {
-        setErrors(prev=>({...prev,[name]:''}))
-      }
-      if (apiError) {
-        setApiError("");
-      }
-  };
-  
-    const validate = () => {
-      const newErrors = {};
-      if (!formData.name.trim()) newErrors.name = "Name is required";
-      if (!formData.email.trim()) newErrors.email = "Email is required";
-      else if (!/\S+@\S+\.\S+/.test(formData.email))
-        newErrors.email = "Invalid email format";
-      if (!formData.password) newErrors.password = "Password is required";
-      if (!formData.remember) newErrors.remember = 'You must agree to terms and conditions';
+  }, [showToast, navigate]);
 
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+    if (apiError) {
+      setApiError("");
+    }
   };
-  
-  const handleSubmit =async (e) => {
+
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      newErrors.email = "Invalid email format";
+    if (!formData.password) newErrors.password = "Password is required";
+    if (!formData.remember)
+      newErrors.remember = "You must agree to terms and conditions";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
     try {
       const res = await axios.post(
-        'https://groccery-app-backend.onrender.com/api/user/register',
+        "https://groccery-app-backend.onrender.com/api/user/register",
         {
           name: formData.name,
           email: formData.email,
           password: formData.password,
         },
-        { headers: { 'Content-Type': 'application/json' } }
+        { headers: { "Content-Type": "application/json" } }
       );
       if (res.data.success) {
         setShowToast(true);
-      }
-      else {
-        setApiError(res.data.message||'Registration failed')
+      } else {
+        setApiError(res.data.message || "Registration failed");
       }
     } catch (err) {
       if (err.response && err.response.data) {
         setApiError(err.response.data.message);
-      }
-      else {
-        setApiError('Server Error');
+      } else {
+        setApiError("Server Error");
       }
     }
-  }
+  };
   const togglePasswordVisibility = () => {
-    setShowPassword(v => !v);
-  }
+    setShowPassword((v) => !v);
+  };
   return (
     <div className={signupStyles.page}>
       <Link to="/login" className={signupStyles.backLink}>
@@ -189,6 +194,6 @@ const Signup = () => {
       </div>
     </div>
   );
-}
+};
 
-export default Signup
+export default Signup;

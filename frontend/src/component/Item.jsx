@@ -12,30 +12,27 @@ import {
 } from "react-icons/fi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { groceryData } from "../assets/dummyDataItem";
-import axios from 'axios'
+import axios from "axios";
 
-const BACKEND_URL = 'https://groccery-app-backend.onrender.com';
+const BACKEND_URL = "https://groccery-app-backend.onrender.com";
 
 const ProductCard = ({ item }) => {
   const { cart, addToCart, removeFromCart, updateQuantity } = useCart();
   const productId = item._id;
-  const cartItem = cart.find(ci => ci.productId === productId);
+  const cartItem = cart.find((ci) => ci.productId === productId);
   const lineId = cartItem?.id;
   const quantity = cartItem?.quantity || 0;
 
-
   const handleAddToCart = () => {
-    addToCart(productId,1);
+    addToCart(productId, 1);
   };
   const handleIncrement = () => {
     updateQuantity(lineId, quantity + 1);
   };
   const handleDecrement = () => {
-    if (quantity <= 1)
-    {
+    if (quantity <= 1) {
       removeFromCart(lineId);
-    }
-    else {
+    } else {
       updateQuantity(lineId, quantity - 1);
     }
   };
@@ -116,7 +113,7 @@ const Item = () => {
   const location = useLocation();
   const [expandedCategories, setExpandedCategories] = useState({});
   const [allExpanded, setAllExpanded] = useState(false);
-    const [data, setData] = useState(groceryData);
+  const [data, setData] = useState(groceryData);
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const search = queryParams.get("search");
@@ -126,20 +123,22 @@ const Item = () => {
   }, [location]);
 
   useEffect(() => {
-    axios.get(`${BACKEND_URL}/api/items`)
-      .then(res => {
-        const products = Array.isArray(res.data) ? res.data : res.data.products || [];
+    axios
+      .get(`${BACKEND_URL}/api/items`)
+      .then((res) => {
+        const products = Array.isArray(res.data)
+          ? res.data
+          : res.data.products || [];
         const grouped = products.reduce((acc, item) => {
-          const cat = item.category || 'Uncategorized';
+          const cat = item.category || "Uncategorized";
           if (!acc[cat]) acc[cat] = { id: cat, name: cat, items: [] };
           acc[cat].items.push(item);
           return acc;
         }, {});
         setData(Object.values(grouped));
-
       })
-    .catch(err=>console.error('Fetching error:',err))
-  },[])
+      .catch((err) => console.error("Fetching error:", err));
+  }, []);
 
   const itemMatchesSearch = (item, term) => {
     if (!term) return true;
@@ -149,7 +148,8 @@ const Item = () => {
   };
 
   const filteredData = searchTerm
-    ? data.map((category) => ({
+    ? data
+        .map((category) => ({
           ...category,
           items: category.items.filter((item) =>
             itemMatchesSearch(item, searchTerm)

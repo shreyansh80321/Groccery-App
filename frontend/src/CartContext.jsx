@@ -14,7 +14,7 @@ const getAuthHeader = () => {
 
 const normalizeItems = (rawItems = []) => {
   return rawItems
-    .map(item => {
+    .map((item) => {
       const id = item._id || item.productId || item.product?._id;
       const productId = item.productId || item.product?._id;
       const name = item.product?.name || item.name || "Unnamed";
@@ -31,7 +31,7 @@ const normalizeItems = (rawItems = []) => {
         quantity: item.quantity || 0,
       };
     })
-    .filter(item => item.id != null);
+    .filter((item) => item.id != null);
 };
 
 export const CartProvider = ({ children }) => {
@@ -44,10 +44,12 @@ export const CartProvider = ({ children }) => {
 
   const fetchCart = async () => {
     try {
-      const { data } = await axios.get("https://groccery-app-backend.onrender.com/api/cart", {
-        ...getAuthHeader(),
-        withCredentials: true,
-      });
+      const { data } = await axios.get(
+        "https://groccery-app-backend.onrender.com/api/cart",
+        {
+          ...getAuthHeader(),
+        }
+      );
 
       const rawItems = Array.isArray(data)
         ? data
@@ -87,7 +89,7 @@ export const CartProvider = ({ children }) => {
       await axios.post(
         "https://groccery-app-backend.onrender.com/api/cart",
         { productId, quantity },
-        getAuthHeader()
+        getAuthHeader() // ✅ now always attaches Bearer token
       );
       await refreshCart();
     } catch (err) {
@@ -100,7 +102,7 @@ export const CartProvider = ({ children }) => {
       await axios.put(
         `https://groccery-app-backend.onrender.com/api/cart/${lineId}`,
         { quantity },
-        getAuthHeader()
+        getAuthHeader() // ✅
       );
       await refreshCart();
     } catch (err) {
@@ -112,7 +114,7 @@ export const CartProvider = ({ children }) => {
     try {
       await axios.delete(
         `https://groccery-app-backend.onrender.com/api/cart/${lineId}`,
-        getAuthHeader()
+        getAuthHeader() // ✅
       );
       await refreshCart();
     } catch (err) {
@@ -125,7 +127,7 @@ export const CartProvider = ({ children }) => {
       await axios.post(
         "https://groccery-app-backend.onrender.com/api/cart/clear",
         {},
-        getAuthHeader()
+        getAuthHeader() // ✅
       );
       setCart([]);
     } catch (err) {

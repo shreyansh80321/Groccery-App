@@ -23,16 +23,17 @@ const ItemsHome = () => {
   }, [activeCategory]);
 
   useEffect(() => {
-    axios.get('https://groccery-app-backend.onrender.com/api/items')
-      .then(res => {
-        const normalized = res.data.map(p => ({
+    axios
+      .get("https://groccery-app-backend.onrender.com/api/items")
+      .then((res) => {
+        const normalized = res.data.map((p) => ({
           ...p,
           id: p._id,
         }));
         setProducts(normalized);
       })
-    .catch(console.error)
-  },[])
+      .catch(console.error);
+  }, []);
 
   const navigate = useNavigate();
   const { cart, addToCart, updateQuantity, removeFromCart } = useCart();
@@ -59,20 +60,19 @@ const ItemsHome = () => {
   const getLineItemId = (productId) => {
     const item = cart.find((ci) => ci > productId === productId);
     return item ? item.id : null;
-  }
+  };
   const handleIncrease = (product) => {
     const lineId = getLineItemId(product._id);
     if (lineId) {
-      updateQuantity(lineId,getQuantity(product._id)+1)
+      updateQuantity(lineId, getQuantity(product._id) + 1);
+    } else {
+      addToCart(product._id, 1);
     }
-    else {
-      addToCart(product._id,1);
-    }
-  }
+  };
   const handleDecrease = (product) => {
     const qty = getQuantity(product._id);
     const lineId = getLineItemId(product._id);
-    if (qty > 1&&lineId) updateQuantity(lineId, qty - 1);
+    if (qty > 1 && lineId) updateQuantity(lineId, qty - 1);
     else if (lineId) removeFromCart(lineId);
   };
   const redirectToItemsPage = () => {

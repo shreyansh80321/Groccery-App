@@ -5,21 +5,19 @@ import { FiArrowLeft, FiMinus, FiPlus, FiTrash2 } from "react-icons/fi";
 import { useCart } from "../CartContext";
 
 const CartPage = () => {
-  const { cart, removeFromCart, updateQuantity, clearCart } =
-    useCart();
-    const getItemPrice = (item) => item.price ?? item.product?.price ?? 0;
-    const getItemName = (item) =>
-      item.name ?? item.product?.name ?? "Unnamed item";
-    const getItemImage = (item) => {
-      const path = item.image ?? item.product?.imageUrl ?? "";
-      return path ? `https://groccery-app-backend.onrender.com${path}` : "";
+  const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
+  const getItemPrice = (item) => item.price ?? item.product?.price ?? 0;
+  const getItemName = (item) =>
+    item.name ?? item.product?.name ?? "Unnamed item";
+  const getItemImage = (item) => {
+    const path = item.image ?? item.product?.imageUrl ?? "";
+    return path ? `https://groccery-app-backend.onrender.com${path}` : "";
   };
-  
+
   const subTotal = cart.reduce((sum, item) => {
     return sum + getItemPrice(item) * item.quantity;
   }, 0);
-  
-  
+
   const handleQuantityChange = async (productId, delta) => {
     // Find the cart item corresponding to this product
     const cartItem = cart.find((item) => item.productId === productId);
@@ -69,8 +67,8 @@ const CartPage = () => {
         <div className={cartStyles.cartGrid}>
           <div className={cartStyles.cartItemsSection}>
             <div className={cartStyles.cartItemsGrid}>
-              {cart.map(item => {
-                const id = item._id||item.id;
+              {cart.map((item) => {
+                const id = item._id || item.id;
                 const name = getItemName(item);
                 const price = getItemPrice(item);
                 const img = getItemImage(item);
@@ -160,7 +158,7 @@ const CartPage = () => {
                 </div>
               </div>
               <button className={cartStyles.checkoutButton}>
-                <Link to='/checkout'>Proceed to checkout</Link>
+                <Link to="/checkout">Proceed to checkout</Link>
               </button>
               <div className={cartStyles.continueShoppingBottom}>
                 <Link to="items" className={cartStyles.continueShopping}>

@@ -1,89 +1,91 @@
-import React, { useEffect, useState } from 'react'
-import { footerStyles, loginStyles } from '../assets/dummyStyles'
-import { FaArrowLeft, FaCheck, FaEye, FaEyeSlash, FaLock, FaUser } from 'react-icons/fa'
-import { Link, useNavigate } from 'react-router-dom'
-import Logout from './Logout'
-import axios from 'axios'
+import React, { useEffect, useState } from "react";
+import { footerStyles, loginStyles } from "../assets/dummyStyles";
+import {
+  FaArrowLeft,
+  FaCheck,
+  FaEye,
+  FaEyeSlash,
+  FaLock,
+  FaUser,
+} from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import Logout from "./Logout";
+import axios from "axios";
 
 const Login = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    Boolean(localStorage.getItem("authToken"))
+  );
 
-    const [isAuthenticated, setIsAuthenticated] = useState(
-      Boolean(localStorage.getItem('authToken'))
-  )
-  
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    remember:false,
-  })
-  const [showPassword,setShowPassword]=useState(false)
+    remember: false,
+  });
+  const [showPassword, setShowPassword] = useState(false);
 
   const [showToast, setShowToast] = useState(false);
-  const [error, setError] = useState('')
+  const [error, setError] = useState("");
   const navigate = useNavigate();
-   useEffect(() => {
-      const handler = () => {
-        setIsAuthenticated(Boolean(localStorage.getItem('authToken')))
-      }
-     window.addEventListener('authStateChanged', handler)
-      return () => {
-        window.removeEventListener("authStateChanged", handler);
-      };
-   }, [])
-  
+  useEffect(() => {
+    const handler = () => {
+      setIsAuthenticated(Boolean(localStorage.getItem("authToken")));
+    };
+    window.addEventListener("authStateChanged", handler);
+    return () => {
+      window.removeEventListener("authStateChanged", handler);
+    };
+  }, []);
+
   if (isAuthenticated) {
-    return <Logout/>
+    return <Logout />;
   }
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) =>({
+    setFormData((prev) => ({
       ...prev,
-      [name]:type==='checkbox'?checked:value
-    }))
-  }
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     if (!formData.remember) {
-      setError('You must agree to terms and conditions')
+      setError("You must agree to terms and conditions");
       return;
     }
     try {
       const response = await axios.post(
-        'https://groccery-app-backend.onrender.com/api/user/login',
+        "https://groccery-app-backend.onrender.com/api/user/login",
         {
           email: formData.email,
           password: formData.password,
         },
-        { headers: { 'Content-Type': 'application/json' } }
+        { headers: { "Content-Type": "application/json" } }
       );
       if (response.data.success) {
         const { token, user } = response.data;
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('userData', JSON.stringify(user));
+        localStorage.setItem("authToken", token);
+        localStorage.setItem("userData", JSON.stringify(user));
         setShowToast(true);
-        window.dispatchEvent(new Event('authStateChanged'));
+        window.dispatchEvent(new Event("authStateChanged"));
         setTimeout(() => {
-          navigate('/');
-
+          navigate("/");
         }, 1000);
+      } else {
+        setError(response.data.message || "Login Failed");
       }
-      else {
-        setError(response.data.message||'Login Failed');
-      }
-      
     } catch (err) {
       if (err.response && err.response.data) {
-        setError(err.response.data.message||'Login Error')
-      }
-      else {
-        setError('Unable to reach server')
+        setError(err.response.data.message || "Login Error");
+      } else {
+        setError("Unable to reach server");
       }
     }
-  }
-  
+  };
+
   return (
     <div className={loginStyles.page}>
       <Link to="/" className={loginStyles.backLink}>
@@ -129,38 +131,46 @@ const Login = () => {
               required
               className={loginStyles.passwordInput}
             />
-            <button className={loginStyles.toggleButton} type='button' onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}>
-              {showPassword?<FaEyeSlash/>:<FaEye/>}
-              
+            <button
+              className={loginStyles.toggleButton}
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
 
           <div className={loginStyles.rememberContainer}>
             <label className={loginStyles.rememberLabel}>
-              <input type="checkbox" name="remember"
+              <input
+                type="checkbox"
+                name="remember"
                 checked={formData.remember}
-                onClick={handleChange} className={loginStyles.rememberCheckbox} required />
+                onClick={handleChange}
+                className={loginStyles.rememberCheckbox}
+                required
+              />
               Remember Me
             </label>
-            <Link to='#' className={loginStyles.forgotLink}>
+            <Link to="#" className={loginStyles.forgotLink}>
               Forgot?
             </Link>
           </div>
           {error && <p className={loginStyles.error}>{error}</p>}
-          <button type='submit' className={loginStyles.submitButton}>
+          <button type="submit" className={loginStyles.submitButton}>
             Sign In
           </button>
         </form>
         <p className={loginStyles.signupText}>
-          Don't have an account?{' '}
-          <Link to='/signup' className={loginStyles.signupLink}>
+          Don't have an account?{" "}
+          <Link to="/signup" className={loginStyles.signupLink}>
             Sign Up
           </Link>
         </p>
       </div>
     </div>
   );
-}
+};
 
-export default Login
+export default Login;

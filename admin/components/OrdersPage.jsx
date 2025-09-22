@@ -1,7 +1,18 @@
 import React, { useEffect } from "react";
 import { ordersPageStyles as styles } from "../src/assets/adminStyles";
 import { useState } from "react";
-import { FiCheck, FiCreditCard, FiEdit, FiMail, FiMapPin, FiPackage, FiPhone, FiTruck, FiUser, FiX } from "react-icons/fi";
+import {
+  FiCheck,
+  FiCreditCard,
+  FiEdit,
+  FiMail,
+  FiMapPin,
+  FiPackage,
+  FiPhone,
+  FiTruck,
+  FiUser,
+  FiX,
+} from "react-icons/fi";
 import { BsCurrencyRupee } from "react-icons/bs";
 import axios from "axios";
 
@@ -23,7 +34,9 @@ const OrdersPage = () => {
   ];
   const fetchOrders = async () => {
     try {
-      const { data } = await axios.get("https://groccery-app-backend.onrender.com/api/orders");
+      const { data } = await axios.get(
+        "https://groccery-app-backend.onrender.com/api/orders"
+      );
       setOrders(data);
       setFilteredOrders(data);
     } catch (err) {
@@ -52,41 +65,40 @@ const OrdersPage = () => {
       result = result.filter((order) => order.status === statusFilter);
     }
     setFilteredOrders(result);
+  }, [orders, searchTerm, statusFilter, paymentFilter]);
 
-  }, [orders,searchTerm, statusFilter, paymentFilter]);
-  
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       await axios.put(
         `https://groccery-app-backend.onrender.com/api/orders/${orderId}`,
-        {status:newStatus}
-      )
+        {
+          status: newStatus,
+        }
+      );
       setOrders((prev) =>
         prev.map((order) =>
           order._id === orderId ? { ...order, status: newStatus } : order
         )
       );
       setFilteredOrders((prev) =>
-        prev.map((o) =>
-          (o._id === orderId ? { ...o, status: newStatus } : o)
-        )
+        prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o))
       );
     } catch (err) {
-      console.error("Error updating order status:",err)
+      console.error("Error updating order status:", err);
     }
-  }
+  };
   const cancelOrder = (orderId) => {
-    updateOrderStatus(orderId, 'Cancelled');
-  }
+    updateOrderStatus(orderId, "Cancelled");
+  };
   const viewOrderDetails = (order) => {
     setSelectedOrder(order);
     setIsDetailModalOpen(true);
-  }
+  };
 
   const closeModal = () => {
     setIsDetailModalOpen(false);
     setSelectedOrder(null);
-  }
+  };
   return (
     <div className={styles.pageContainer}>
       <div className={styles.innerContainer}>
@@ -409,7 +421,7 @@ const OrdersPage = () => {
                         <div className={styles.modalOrderTotalRowLast}>
                           <span className="text-lg font-bold">Total</span>
                           <span className="text-lg font-bold text-emerald-700">
-                            ₹{(selectedOrder.total).toFixed(2)}
+                            ₹{selectedOrder.total.toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -423,11 +435,15 @@ const OrdersPage = () => {
                     <div className={styles.modalInfoBox}>
                       <div className="flex justify-between-mb-3">
                         <span className="text-gray-600">Payment Method:</span>
-                        <span className="font-medium">{selectedOrder.paymentMethod}</span>
+                        <span className="font-medium">
+                          {selectedOrder.paymentMethod}
+                        </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className='text-gray-600'>Payment Status:</span>
-                        <span className={styles.paymentBadge}>{selectedOrder.paymentStatus}</span>
+                        <span className="text-gray-600">Payment Status:</span>
+                        <span className={styles.paymentBadge}>
+                          {selectedOrder.paymentStatus}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -435,11 +451,17 @@ const OrdersPage = () => {
               </div>
             </div>
             <div className={styles.modalFooter}>
-              <div className='flex justify-end space-x-3'>
-                <button className={styles.modalFooterButton} onClick={closeModal}>
+              <div className="flex justify-end space-x-3">
+                <button
+                  className={styles.modalFooterButton}
+                  onClick={closeModal}
+                >
                   Close
                 </button>
-                <button onClick={closeModal} className={styles.modalFooterPrimaryButton}>
+                <button
+                  onClick={closeModal}
+                  className={styles.modalFooterPrimaryButton}
+                >
                   Save Changes
                 </button>
               </div>
