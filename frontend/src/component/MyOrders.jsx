@@ -12,6 +12,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { useState } from "react";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -19,20 +20,67 @@ const MyOrders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [rawResponse, setRawResponse] = useState(null);
+  const [apiError, setApiError] = useState(null);
   const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-  const userEmail = userData.email || "";
+  const userEmail = userData && userData.email ? userData.email : "";
+  const userId =
+    userData && (userData.id || userData._id)
+      ? userData.id || userData._id
+      : null;
+  const token =
+    localStorage.getItem("authToken") ||
+    sessionStorage.getItem("authToken") ||
+    null;
+
   const fetchAndFilterOrders = async () => {
     try {
-      const resp = await axios.get(
-        "https://groccery-app-backend.onrender.com/api/orders"
+      setLoading(true);
+      const headers = token
+        ? { headers: { Authorization: `Bearer ${token}` } }
+        : {};
+      console.log(
+        "Fetching orders from",
+        `${API_BASE}/orders`,
+        "with headers:",
+        headers
       );
-      const allOrders = resp.data;
-      const mine = allOrders.filter(
-        (o) => o.customer?.email?.toLowerCase() === userEmail.toLowerCase()
+      const resp = await axios.get(`${API_BASE}/orders`, headers);
+      console.log("Orders API response:", resp.data);
+      setRawResponse(resp.data);
+      setApiError(null);
+      const allOrders = Array.isArray(resp.data)
+        ? resp.data
+        : resp.data.orders || [];
+
+      // Prefer filtering by logged-in user id if available (more reliable)
+      console.log(
+        "Filtering orders by userId:",
+        userId,
+        "or by email:",
+        userEmail
       );
+      let mine = allOrders;
+      if (userId) {
+        mine = allOrders.filter(
+          (o) => (o.user || "").toString() === userId.toString()
+        );
+      } else if (userEmail) {
+        mine = allOrders.filter(
+          (o) =>
+            (o.customer?.email || "").toLowerCase() === userEmail.toLowerCase()
+        );
+      }
+
       setOrders(mine);
     } catch (err) {
       console.error("Error fetching orders", err);
+      setApiError(err.response?.data || err.message || err.toString());
+      setRawResponse(null);
+      setOrders([]);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -40,14 +88,16 @@ const MyOrders = () => {
   }, []);
 
   useEffect(() => {
+    const term = (searchTerm || "").toLowerCase();
     setFilteredOrders(
-      orders.filter(
-        (o) =>
-          o.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          o.items.some((i) =>
-            i.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-      )
+      orders.filter((o) => {
+        const id = (o.orderId || o._id || "").toString().toLowerCase();
+        const matchesId = id.includes(term);
+        const matchesItem = Array.isArray(o.items)
+          ? o.items.some((i) => (i.name || "").toLowerCase().includes(term))
+          : false;
+        return !term ? true : matchesId || matchesItem;
+      })
     );
   }, [orders, searchTerm]);
   const viewOrderDetails = (order) => {
@@ -83,7 +133,7 @@ const MyOrders = () => {
               type="text"
               placeholder="Search orders or products..."
               className={ordersPageStyles.searchInput}
-              vlaue={searchTerm}
+              value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <button className={ordersPageStyles.searchButton}>
@@ -105,7 +155,13 @@ const MyOrders = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-emerald-700/50">
-                {filteredOrders.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan="6" className="py-12 text-center">
+                      <div className="text-emerald-200">Loading orders...</div>
+                    </td>
+                  </tr>
+                ) : filteredOrders.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="py-12 text-center">
                       <div className="flex flex-col items-center justify-center">
@@ -231,6 +287,33 @@ const MyOrders = () => {
               </div>
             )}
           </div>
+        </div>
+      )}
+      {/* Debug panel - enable by setting VITE_DEBUG=true in frontend env */}
+      {import.meta.env.VITE_DEBUG === "true" && (
+        <div className="fixed bottom-4 right-4 bg-black/60 p-4 rounded-lg text-xs text-emerald-200 max-w-lg">
+          <div className="font-medium">Debug</div>
+          <div className="mt-2">
+            <strong>userData:</strong>
+            <pre className="text-xxs">{JSON.stringify(userData, null, 2)}</pre>
+          </div>
+          <div>
+            <strong>token:</strong> {token ? "present" : "missing"}
+          </div>
+          <div>
+            <strong>rawResponse:</strong>
+            <pre className="text-xxs">
+              {JSON.stringify(rawResponse, null, 2)}
+            </pre>
+          </div>
+          {apiError && (
+            <div className="mt-2 text-rose-300">
+              <strong>API Error:</strong>
+              <pre className="text-xxs">
+                {JSON.stringify(apiError, null, 2)}
+              </pre>
+            </div>
+          )}
         </div>
       )}
     </div>

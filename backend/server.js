@@ -32,6 +32,8 @@ app.use(
       }
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 app.use(express.json());
@@ -47,6 +49,15 @@ app.use("/api/orders", orderrouter);
 
 app.get("/", (req, res) => {
   res.send("API WORKING");
+});
+
+// Debug endpoint: echoes Authorization header
+app.get("/api/debug/auth", (req, res) => {
+  console.log(
+    "Debug /api/debug/auth - Authorization header:",
+    req.headers.authorization
+  );
+  res.json({ authorization: req.headers.authorization || null });
 });
 
 app.listen(port, () => {

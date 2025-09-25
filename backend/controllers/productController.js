@@ -1,13 +1,13 @@
-import {Product} from "../models/productModel.js";
+import { Product } from "../models/productModel.js";
 
 export const getProducts = async (req, res, next) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
     res.json(products);
   } catch (err) {
-    next(err)
+    next(err);
   }
-}
+};
 
 export const createProduct = async (req, res, next) => {
   try {
@@ -18,26 +18,25 @@ export const createProduct = async (req, res, next) => {
       name,
       description,
       category,
-      oldPrice:Number(oldPrice),
+      oldPrice: Number(oldPrice),
       price: Number(price),
       imageUrl,
     });
-    res.status(201).json(product)
+    res.status(201).json(product);
   } catch (err) {
-    next(err)
+    next(err);
   }
-}
+};
 
 export const deleteProduct = async (req, res, next) => {
   try {
-    const deleted = await Product.findByIdAndDelete(req.params.id)
-    if (!deleted)
-    {
+    const deleted = await Product.findByIdAndDelete(req.params.id);
+    if (!deleted) {
       res.status(404);
-      throw new Error('Product not found')
+      throw new Error("Product not found");
     }
-    res.json({message:"Product Removed"})
+    res.json({ message: "Product Removed" });
   } catch (err) {
-    next(err)
+    next(err);
   }
-}
+};

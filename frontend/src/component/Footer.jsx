@@ -1,29 +1,42 @@
-import React from 'react'
-import { footerStyles } from '../assets/dummyStyles'
-import { FaApplePay, FaCcAmex, FaCcMastercard, FaCcPaypal, FaCcVisa, FaFacebookF, FaInstagram, FaLink, FaMapMarkedAlt, FaPhone, FaTwitter, FaYoutube } from 'react-icons/fa';
-import {BsTelephone} from 'react-icons/bs'
-import { FiBookmark, FiMail } from 'react-icons/fi';
+import React from "react";
+import { footerStyles } from "../assets/dummyStyles";
+import {
+  FaApplePay,
+  FaCcAmex,
+  FaCcMastercard,
+  FaCcPaypal,
+  FaCcVisa,
+  FaFacebookF,
+  FaInstagram,
+  FaLink,
+  FaMapMarkedAlt,
+  FaPhone,
+  FaTwitter,
+  FaYoutube,
+} from "react-icons/fa";
+import { BsTelephone } from "react-icons/bs";
+import { FiBookmark, FiMail } from "react-icons/fi";
 import { BiMailSend } from "react-icons/bi";
 
 const Footer = () => {
-   const socialLinks = [
-     {
-       icon: FaFacebookF,
-       url: "https://www.facebook.com/",
-     },
-     {
-       icon: FaTwitter,
-       url: "https://twitter.com/",
-     },
-     {
-       icon: FaInstagram,
-       url: "https://www.instagram.com/",
-     },
-     {
-       icon: FaYoutube,
-       url: "https://www.youtube.com/",
-     },
-   ];
+  const socialLinks = [
+    {
+      icon: FaFacebookF,
+      url: "https://www.facebook.com/",
+    },
+    {
+      icon: FaTwitter,
+      url: "https://twitter.com/",
+    },
+    {
+      icon: FaInstagram,
+      url: "https://www.instagram.com/",
+    },
+    {
+      icon: FaYoutube,
+      url: "https://www.youtube.com/",
+    },
+  ];
   return (
     <footer className={footerStyles.footer}>
       <div className={footerStyles.topBorder} />
@@ -74,7 +87,7 @@ const Footer = () => {
               {["Home", "Items", "Contact"].map((item, idx) => (
                 <li key={idx}>
                   <a
-                    href={item==='Home'?'/':`/${item.toLowerCase()}`}
+                    href={item === "Home" ? "/" : `/${item.toLowerCase()}`}
                     className={footerStyles.linkItem}
                   >
                     <span className={footerStyles.linkBullet}></span>
@@ -146,16 +159,18 @@ const Footer = () => {
             We Accept all Payment Platform
           </h4>
           <div className={footerStyles.paymentMethods}>
-            {[FaCcVisa, FaCcMastercard, FaCcPaypal, FaCcAmex, FaApplePay].map((Icon, idx) => (
-              <div key={idx} className={footerStyles.paymentItem}>
-                <Icon className={ footerStyles.paymentIcon} />
-              </div>
-            ))}
+            {[FaCcVisa, FaCcMastercard, FaCcPaypal, FaCcAmex, FaApplePay].map(
+              (Icon, idx) => (
+                <div key={idx} className={footerStyles.paymentItem}>
+                  <Icon className={footerStyles.paymentIcon} />
+                </div>
+              )
+            )}
           </div>
         </div>
       </div>
     </footer>
   );
-}
+};
 
-export default Footer
+export default Footer;

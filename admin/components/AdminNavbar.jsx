@@ -1,12 +1,16 @@
-import React from 'react'
-import { adminNavbarStyles as styles } from '../src/assets/adminStyles.js'
-import { FiMenu, FiPackage, FiPlusCircle, FiShoppingBag, FiX } from "react-icons/fi";
-import { NavLink } from 'react-router-dom';
-import { useState } from 'react';
-
+import React from "react";
+import { adminNavbarStyles as styles } from "../src/assets/adminStyles.js";
+import {
+  FiMenu,
+  FiPackage,
+  FiPlusCircle,
+  FiShoppingBag,
+  FiX,
+} from "react-icons/fi";
+import { NavLink } from "react-router-dom";
+import { useState } from "react";
 
 const AdminNavbar = () => {
-
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -82,6 +86,6 @@ const AdminNavbar = () => {
       </div>
     </nav>
   );
-}
+};
 
-export default AdminNavbar
+export default AdminNavbar;

@@ -507,8 +507,9 @@ export const itemsHomeStyles = {
   productCard:
     "bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-transform duration-300 border border-gray-100 transform hover:-translate-y-1",
   imageContainer:
-    "w-full h-40 sm:h-52 bg-gray-100 flex items-center justify-center",
-  productImage: "max-h-full object-cover transition-transform duration-300",
+    "w-full h-40 sm:h-52 bg-gray-100 flex items-center justify-center overflow-hidden",
+  productImage:
+    "w-full h-full object-contain transition-transform duration-300",
   productContent: "p-5",
   productTitle: "font-bold text-lg text-gray-800 text-center mb-2 line-clamp-1",
   priceContainer: "flex justify-between items-center mt-4",

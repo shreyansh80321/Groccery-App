@@ -1,31 +1,29 @@
-import React, { useState } from 'react'
-import { bannerStyles } from '../assets/dummyStyles'
-import { FiSearch, FiTruck } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
-import { features } from '../assets/Dummy';
-import BannerFood from '../assets/FoodBanner.png'
+import React, { useState } from "react";
+import { bannerStyles } from "../assets/dummyStyles";
+import { FiSearch, FiTruck } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import { features } from "../assets/Dummy";
+import BannerFood from "../assets/FoodBanner.png";
 
 const BannerHome = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
-  const handleSearch = (e) => setSearchTerm(e.target.value)
+  const handleSearch = (e) => setSearchTerm(e.target.value);
   const handleSubmit = (e) => {
     e.preventDefault();
     const trimmedTerm = searchTerm.trim();
-    if (trimmedTerm)
-    {
-      if (onSearch)
-      {
+    if (trimmedTerm) {
+      if (onSearch) {
         const searchWords = trimmedTerm.toLowerCase().split(/\s+/);
-        onSearch(searchWords.join(' '))
+        onSearch(searchWords.join(" "));
+      } else {
+        NavigationHistoryEntry(
+          `/items?search=${encodeURIComponent(trimmedTerm)}`
+        );
       }
-      else
-      {
-        NavigationHistoryEntry(`/items?search=${encodeURIComponent(trimmedTerm)}`)
-      }
-      setSearchTerm('');
+      setSearchTerm("");
     }
-  }
+  };
   return (
     <div className="relative overflow-hidden pt-16">
       <div className={bannerStyles.backgroundGradient}></div>
@@ -89,6 +87,6 @@ const BannerHome = ({ onSearch }) => {
       </div>
     </div>
   );
-}
+};
 
-export default BannerHome
+export default BannerHome;

@@ -1,7 +1,7 @@
-import React from 'react'
-import Navbar from '../component/Navbar'
-import Footer from '../component/Footer'
-import ContactUs from '../component/ContactUs'
+import React from "react";
+import Navbar from "../component/Navbar";
+import Footer from "../component/Footer";
+import ContactUs from "../component/ContactUs";
 
 const Contact = () => {
   return (
@@ -10,7 +10,7 @@ const Contact = () => {
       <ContactUs />
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default Contact
+export default Contact;

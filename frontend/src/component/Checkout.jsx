@@ -69,16 +69,12 @@ const Checkout = () => {
     };
     try {
       const token = localStorage.getItem("authToken");
-      const res = await axios.post(
-        "https://groccery-app-backend.onrender.com/api/orders",
-        order,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        }
-      );
+      const res = await axios.post("http://localhost:4000/api/orders", order, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
       if (res.data.checkoutUrl) {
         window.location.href = res.data.checkoutUrl;
         return;
@@ -269,7 +265,7 @@ const Checkout = () => {
                     <div className={checkoutStyles.cartImage}>
                       {item.imageUrl ? (
                         <img
-                          src={`https://groccery-app-backend.onrender.com${item.imageUrl}`}
+                          src={`http://localhost:4000${item.imageUrl}`}
                           alt={item.name}
                           className="h-full w-full object-cover rounded"
                           onError={(e) => {

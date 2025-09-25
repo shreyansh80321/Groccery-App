@@ -6,8 +6,8 @@ const Logout = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userData");
 
     // Debugging: check what's left in localStorage
     console.log("After logout:", localStorage);

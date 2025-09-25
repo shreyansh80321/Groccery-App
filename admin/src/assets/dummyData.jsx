@@ -111,4 +111,4 @@ const initialOrders = [
   },
 ];
 
-  export default initialOrders;
+export default initialOrders;

@@ -22,17 +22,19 @@ const ItemsHome = () => {
     localStorage.getItem("activeCategory", activeCategory);
   }, [activeCategory]);
 
+  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+
   useEffect(() => {
     axios
-      .get("https://groccery-app-backend.onrender.com/api/items")
+      .get(`${API_BASE}/items`)
       .then((res) => {
-        const normalized = res.data.map((p) => ({
+        const normalized = (res.data || []).map((p) => ({
           ...p,
-          id: p._id,
+          id: p._id || p.id,
         }));
         setProducts(normalized);
       })
-      .catch(console.error);
+      .catch((err) => console.error("Items fetch error:", err));
   }, []);
 
   const navigate = useNavigate();
@@ -58,22 +60,31 @@ const ItemsHome = () => {
   };
 
   const getLineItemId = (productId) => {
-    const item = cart.find((ci) => ci > productId === productId);
-    return item ? item.id : null;
+    const item = cart.find(
+      (ci) => ci.product?._id === productId || ci.productId === productId
+    );
+    return item ? item._id : null; // use _id of cart line
   };
   const handleIncrease = (product) => {
-    const lineId = getLineItemId(product._id);
+    const lineId = getLineItemId(product._id); // safe
+    const currentQty = getQuantity(product._id); // get existing qty
     if (lineId) {
-      updateQuantity(lineId, getQuantity(product._id) + 1);
+      updateQuantity(lineId, currentQty + 1);
     } else {
       addToCart(product._id, 1);
     }
   };
+
   const handleDecrease = (product) => {
-    const qty = getQuantity(product._id);
+    const currentQty = getQuantity(product._id);
     const lineId = getLineItemId(product._id);
-    if (qty > 1 && lineId) updateQuantity(lineId, qty - 1);
-    else if (lineId) removeFromCart(lineId);
+    if (lineId) {
+      if (currentQty > 1) {
+        updateQuantity(lineId, currentQty - 1);
+      } else {
+        removeFromCart(lineId);
+      }
+    }
   };
   const redirectToItemsPage = () => {
     navigate("/items", { state: { category: activeCategory } });
@@ -194,59 +205,81 @@ const ItemsHome = () => {
             {searchedProducts.length > 0 ? (
               searchedProducts.map((product) => {
                 const qty = getQuantity(product.id);
+                const imgSrc = product.imageUrl
+                  ? // some items may store full path or relative /uploads path
+                    product.imageUrl.startsWith("http")
+                    ? product.imageUrl
+                    : `${API_BASE.replace(
+                        /\/api$|\/$/,
+                        ""
+                      )}/${product.imageUrl.replace(/^\//, "")}`
+                  : null;
+
                 return (
                   <div key={product.id} className={itemsHomeStyles.productCard}>
                     <div className={itemsHomeStyles.imageContainer}>
-                      <img
-                        src={`https://groccery-app-backend.onrender.com${product.imageUrl}`}
-                        alt={product.name}
-                        className={itemsHomeStyles.productImage}
-                        onError={(e) => {
-                          e.target.onError = null;
-                          e.target.parentNode.innerHtml = `<div class='flex items-center justify-center w-full h-full bg-gray-200'>
-                          <span class='text-gray-500 text-sm'>No Image</span>
-                          </div>`;
-                        }}
-                      />
-                      <div className={itemsHomeStyles.productContent}>
-                        <h3 className={itemsHomeStyles.productTitle}>
-                          {product.name}
-                        </h3>
-                        <div className={itemsHomeStyles.priceContainer}>
-                          <div>
-                            <p className={itemsHomeStyles.currentPrice}>
-                              ₹{product.price.toFixed(2)}
-                            </p>
-                            <span className={itemsHomeStyles.oldPrice}>
-                              {(product.price * 1.2).toFixed(2)}
-                            </span>
-                          </div>
-                          {qty === 0 ? (
+                      {imgSrc ? (
+                        <img
+                          src={imgSrc}
+                          alt={product.name}
+                          className={itemsHomeStyles.productImage}
+                          onError={(e) => {
+                            try {
+                              e.target.onerror = null;
+                              e.target.src =
+                                "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><rect width='100%' height='100%' fill='%23f3f4f6'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-family='Arial' font-size='14'>No Image</text></svg>";
+                            } catch (err) {
+                              /* ignore */
+                            }
+                          }}
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center w-full h-full bg-gray-100">
+                          <span className="text-gray-500 text-sm">
+                            No Image
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className={itemsHomeStyles.productContent}>
+                      <h3 className={itemsHomeStyles.productTitle}>
+                        {product.name}
+                      </h3>
+                      <div className={itemsHomeStyles.priceContainer}>
+                        <div>
+                          <p className={itemsHomeStyles.currentPrice}>
+                            ₹{Number(product.price || 0).toFixed(2)}
+                          </p>
+                          <span className={itemsHomeStyles.oldPrice}>
+                            {Number((product.price || 0) * 1.2).toFixed(2)}
+                          </span>
+                        </div>
+                        {qty === 0 ? (
+                          <button
+                            onClick={() => handleIncrease(product)}
+                            className={itemsHomeStyles.addButton}
+                          >
+                            <FaShoppingCart className="mr-2" />
+                            Add
+                          </button>
+                        ) : (
+                          <div className={itemsHomeStyles.quantityControls}>
+                            <button
+                              onClick={() => handleDecrease(product)}
+                              className={itemsHomeStyles.quantityButton}
+                            >
+                              <FaMinus />
+                            </button>
+                            <span className="font-bold">{qty}</span>
                             <button
                               onClick={() => handleIncrease(product)}
-                              className={itemsHomeStyles.addButton}
+                              className={itemsHomeStyles.quantityButton}
                             >
-                              <FaShoppingCart className="mr-2" />
-                              Add
+                              <FaPlus />
                             </button>
-                          ) : (
-                            <div className={itemsHomeStyles.quantityControls}>
-                              <button
-                                onClick={() => handleDecrease(product)}
-                                className={itemsHomeStyles.quantityButton}
-                              >
-                                <FaMinus />
-                              </button>
-                              <span className="font-bold">{qty}</span>
-                              <button
-                                onClick={() => handleIncrease(product)}
-                                className={itemsHomeStyles.quantityButton}
-                              >
-                                <FaPlus />
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

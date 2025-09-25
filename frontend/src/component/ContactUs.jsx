@@ -158,12 +158,12 @@ const ContactUs = () => {
               <span className={contactStyles.submitButtonText}>
                 Send Message
               </span>
-              <FaPaperPlane className='h-5 w-5 text-black'/>
+              <FaPaperPlane className="h-5 w-5 text-black" />
             </button>
           </form>
         </div>
       </div>
-      <style>{ contactStyles.customCSS}</style>
+      <style>{contactStyles.customCSS}</style>
     </div>
   );
 };

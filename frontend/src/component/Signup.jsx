@@ -68,7 +68,7 @@ const Signup = () => {
     if (!validate()) return;
     try {
       const res = await axios.post(
-        "https://groccery-app-backend.onrender.com/api/user/register",
+        "http://localhost:4000/api/user/register",
         {
           name: formData.name,
           email: formData.email,

@@ -22,7 +22,7 @@ const VerifyPaymentPage = () => {
       return;
     }
     axios
-      .get("https://groccery-app-backend.onrender.com/api/orders/confirm", {
+      .get("http://localhost:4000/api/orders/confirm", {
         params: { session_id },
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })

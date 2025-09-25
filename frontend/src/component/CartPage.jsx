@@ -11,7 +11,7 @@ const CartPage = () => {
     item.name ?? item.product?.name ?? "Unnamed item";
   const getItemImage = (item) => {
     const path = item.image ?? item.product?.imageUrl ?? "";
-    return path ? `https://groccery-app-backend.onrender.com${path}` : "";
+    return path ? `http://localhost:4000${path}` : "";
   };
 
   const subTotal = cart.reduce((sum, item) => {

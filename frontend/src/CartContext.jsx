@@ -3,12 +3,11 @@ import axios from "axios";
 
 const CartContext = createContext();
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+
 const getAuthHeader = () => {
   const token =
-    localStorage.getItem("authToken") ||
-    localStorage.getItem("token") ||
-    sessionStorage.getItem("token");
-
+    localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
   return token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 };
 
@@ -44,12 +43,15 @@ export const CartProvider = ({ children }) => {
 
   const fetchCart = async () => {
     try {
-      const { data } = await axios.get(
-        "https://groccery-app-backend.onrender.com/api/cart",
-        {
-          ...getAuthHeader(),
-        }
+      // Debug: print token and header before request
+      const header = getAuthHeader();
+      console.log(
+        "fetchCart -> API:",
+        `${API_BASE}/cart`,
+        "Auth header:",
+        header
       );
+      const { data } = await axios.get(`${API_BASE}/cart`, header);
 
       const rawItems = Array.isArray(data)
         ? data
@@ -67,10 +69,7 @@ export const CartProvider = ({ children }) => {
 
   const refreshCart = async () => {
     try {
-      const { data } = await axios.get(
-        "https://groccery-app-backend.onrender.com/api/cart",
-        getAuthHeader()
-      );
+      const { data } = await axios.get(`${API_BASE}/cart`, getAuthHeader());
 
       const rawItems = Array.isArray(data)
         ? data
@@ -86,23 +85,32 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (productId, quantity = 1) => {
     try {
+      console.log("Auth header:", getAuthHeader());
       await axios.post(
-        "https://groccery-app-backend.onrender.com/api/cart",
+        `${API_BASE}/cart`,
         { productId, quantity },
-        getAuthHeader() // ✅ now always attaches Bearer token
+        getAuthHeader()
       );
       await refreshCart();
     } catch (err) {
-      console.error("Error adding to cart:", err);
+      if (err.response) {
+        console.error(
+          "Add to cart failed:",
+          err.response.status,
+          err.response.data
+        );
+      } else {
+        console.error("Error adding to cart:", err.message);
+      }
     }
   };
 
   const updateQuantity = async (lineId, quantity) => {
     try {
       await axios.put(
-        `https://groccery-app-backend.onrender.com/api/cart/${lineId}`,
+        `${API_BASE}/cart/${lineId}`,
         { quantity },
-        getAuthHeader() // ✅
+        getAuthHeader()
       );
       await refreshCart();
     } catch (err) {
@@ -112,10 +120,7 @@ export const CartProvider = ({ children }) => {
 
   const removeFromCart = async (lineId) => {
     try {
-      await axios.delete(
-        `https://groccery-app-backend.onrender.com/api/cart/${lineId}`,
-        getAuthHeader() // ✅
-      );
+      await axios.delete(`${API_BASE}/cart/${lineId}`, getAuthHeader());
       await refreshCart();
     } catch (err) {
       console.error("Error removing from cart", err);
@@ -124,11 +129,7 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = async () => {
     try {
-      await axios.post(
-        "https://groccery-app-backend.onrender.com/api/cart/clear",
-        {},
-        getAuthHeader() // ✅
-      );
+      await axios.post(`${API_BASE}/cart/clear`, {}, getAuthHeader());
       setCart([]);
     } catch (err) {
       console.error("Error clearing cart:", err);
