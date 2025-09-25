@@ -8,6 +8,6 @@ Development notes
 If you get 401 on `/api/cart`:
 
 - Ensure you are logged in and `localStorage.authToken` exists in the browser.
-- Ensure frontend uses `VITE_API_URL` or `http://localhost:4000/api` as base.
+- Ensure frontend uses `VITE_API_URL` or `https://groccery-app-frontend.onrender.com/api` as base.
 - Check server console for `Auth header received:` to see if token reached server.
 - Inspect network request in browser devtools to confirm Authorization header present.

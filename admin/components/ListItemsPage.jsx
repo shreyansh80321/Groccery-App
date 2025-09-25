@@ -29,12 +29,14 @@ const ListItemsPage = () => {
   useEffect(() => {
     const loadItems = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/api/items");
+        const response = await axios.get(
+          "https://groccery-app-frontend.onrender.com/api/items"
+        );
         const data = response.data;
         const withUrls = data.map((item) => ({
           ...item,
           imageUrl: item.imageUrl
-            ? `http://localhost:4000${item.imageUrl}`
+            ? `https://groccery-app-frontend.onrender.com${item.imageUrl}`
             : null,
         }));
         const itemCategories = data.map((item) => item.category);
@@ -63,7 +65,9 @@ const ListItemsPage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
     try {
-      await axios.delete(`http://localhost:4000/api/items/${id}`);
+      await axios.delete(
+        `https://groccery-app-frontend.onrender.com/api/items/${id}`
+      );
       setItems((prev) => prev.filter((i) => i._id !== id));
       setFilteredItems((prev) => prev.filter((i) => i._id !== id));
     } catch (err) {

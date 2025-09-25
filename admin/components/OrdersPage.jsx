@@ -34,7 +34,9 @@ const OrdersPage = () => {
   ];
   const fetchOrders = async () => {
     try {
-      const { data } = await axios.get("http://localhost:4000/api/orders");
+      const { data } = await axios.get(
+        "https://groccery-app-frontend.onrender.com/api/orders"
+      );
       setOrders(data);
       setFilteredOrders(data);
     } catch (err) {
@@ -67,9 +69,12 @@ const OrdersPage = () => {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      await axios.put(`http://localhost:4000/api/orders/${orderId}`, {
-        status: newStatus,
-      });
+      await axios.put(
+        `https://groccery-app-frontend.onrender.com/api/orders/${orderId}`,
+        {
+          status: newStatus,
+        }
+      );
       setOrders((prev) =>
         prev.map((order) =>
           order._id === orderId ? { ...order, status: newStatus } : order
@@ -376,7 +381,7 @@ const OrdersPage = () => {
                         >
                           {item.imageUrl ? (
                             <img
-                              src={`http://localhost:4000${item.imageUrl}`}
+                              src={`https://groccery-app-frontend.onrender.com${item.imageUrl}`}
                               alt={item.name}
                               className={styles.modalOrderImage}
                             />
