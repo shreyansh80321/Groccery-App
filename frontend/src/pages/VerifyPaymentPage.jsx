@@ -21,8 +21,10 @@ const VerifyPaymentPage = () => {
       setStatusMsg("No Session id provided");
       return;
     }
+    const API_BASE =
+      import.meta.env.VITE_API_URL || "http://localhost:4000/api";
     axios
-      .get("https://groccery-app-frontend.onrender.com/api/orders/confirm", {
+      .get(`${API_BASE}/orders/confirm`, {
         params: { session_id },
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })

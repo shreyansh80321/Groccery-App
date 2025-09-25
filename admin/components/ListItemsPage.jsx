@@ -29,15 +29,14 @@ const ListItemsPage = () => {
   useEffect(() => {
     const loadItems = async () => {
       try {
-        const response = await axios.get(
-          "https://groccery-app-frontend.onrender.com/api/items"
-        );
-        const data = response.data;
+        const API_BASE =
+          import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+        const base = API_BASE.replace(/\/api$|\/$/, "");
+        const response = await axios.get(`${API_BASE}/items`);
+        const data = response.data || [];
         const withUrls = data.map((item) => ({
           ...item,
-          imageUrl: item.imageUrl
-            ? `https://groccery-app-frontend.onrender.com${item.imageUrl}`
-            : null,
+          imageUrl: item.imageUrl ? `${base}${item.imageUrl}` : null,
         }));
         const itemCategories = data.map((item) => item.category);
         const uniqueCategories = ["All", ...new Set(itemCategories)];
@@ -65,9 +64,9 @@ const ListItemsPage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this product?")) return;
     try {
-      await axios.delete(
-        `https://groccery-app-frontend.onrender.com/api/items/${id}`
-      );
+      const API_BASE =
+        import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+      await axios.delete(`${API_BASE}/items/${id}`);
       setItems((prev) => prev.filter((i) => i._id !== id));
       setFilteredItems((prev) => prev.filter((i) => i._id !== id));
     } catch (err) {

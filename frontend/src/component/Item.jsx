@@ -14,7 +14,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { groceryData } from "../assets/dummyDataItem";
 import axios from "axios";
 
-const BACKEND_URL = "https://groccery-app-frontend.onrender.com";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 const ProductCard = ({ item }) => {
   const { cart, addToCart, removeFromCart, updateQuantity } = useCart();

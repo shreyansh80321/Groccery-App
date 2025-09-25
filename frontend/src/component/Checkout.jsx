@@ -67,18 +67,16 @@ const Checkout = () => {
         .split("T")[0],
       notes: formData.notes,
     };
+    const API_BASE =
+      import.meta.env.VITE_API_URL || "http://localhost:4000/api";
     try {
       const token = localStorage.getItem("authToken");
-      const res = await axios.post(
-        "https://groccery-app-frontend.onrender.com/api/orders",
-        order,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        }
-      );
+      const res = await axios.post(`${API_BASE}/orders`, order, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
       if (res.data.checkoutUrl) {
         window.location.href = res.data.checkoutUrl;
         return;
@@ -269,7 +267,9 @@ const Checkout = () => {
                     <div className={checkoutStyles.cartImage}>
                       {item.imageUrl ? (
                         <img
-                          src={`https://groccery-app-frontend.onrender.com${item.imageUrl}`}
+                          src={`${API_BASE.replace(/\/api$|\/$/, "")}${
+                            item.imageUrl
+                          }`}
                           alt={item.name}
                           className="h-full w-full object-cover rounded"
                           onError={(e) => {

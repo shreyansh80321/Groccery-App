@@ -3,9 +3,7 @@ import axios from "axios";
 
 const CartContext = createContext();
 
-const API_BASE =
-  import.meta.env.VITE_API_URL ||
-  "https://groccery-app-frontend.onrender.com/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 const getAuthHeader = () => {
   const token =

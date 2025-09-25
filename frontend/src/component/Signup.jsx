@@ -67,8 +67,10 @@ const Signup = () => {
     e.preventDefault();
     if (!validate()) return;
     try {
+      const API_BASE =
+        import.meta.env.VITE_API_URL || "http://localhost:4000/api";
       const res = await axios.post(
-        "https://groccery-app-frontend.onrender.com/api/user/register",
+        `${API_BASE}/user/register`,
         {
           name: formData.name,
           email: formData.email,
@@ -147,7 +149,7 @@ const Signup = () => {
           <div className={signupStyles.inputContainer}>
             <FaLock className={signupStyles.inputIcon} />
             <input
-              type={showPassword.password ? "text" : "password"}
+              type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
               onChange={handleChange}
@@ -157,13 +159,11 @@ const Signup = () => {
             />
             <button
               type="button"
-              onClick={() => togglePasswordVisibility("password")}
+              onClick={togglePasswordVisibility}
               className={signupStyles.toggleButton}
-              aria-label={
-                showPassword.password ? "Hide Password" : "Show Password"
-              }
+              aria-label={showPassword ? "Hide Password" : "Show Password"}
             >
-              {showPassword.password ? <FaEyeSlash /> : <FaEye />}
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
             {errors.password && (
               <p className={signupStyles.error}>{errors.password}</p>
@@ -174,7 +174,7 @@ const Signup = () => {
               <input
                 type="checkbox"
                 name="remember"
-                checked={FormData.remember}
+                checked={formData.remember}
                 onChange={handleChange}
                 className={signupStyles.termsCheckbox}
               />

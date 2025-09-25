@@ -34,9 +34,9 @@ const OrdersPage = () => {
   ];
   const fetchOrders = async () => {
     try {
-      const { data } = await axios.get(
-        "https://groccery-app-frontend.onrender.com/api/orders"
-      );
+      const API_BASE =
+        import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+      const { data } = await axios.get(`${API_BASE}/orders`);
       setOrders(data);
       setFilteredOrders(data);
     } catch (err) {
@@ -69,12 +69,11 @@ const OrdersPage = () => {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      await axios.put(
-        `https://groccery-app-frontend.onrender.com/api/orders/${orderId}`,
-        {
-          status: newStatus,
-        }
-      );
+      const API_BASE =
+        import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+      await axios.put(`${API_BASE}/orders/${orderId}`, {
+        status: newStatus,
+      });
       setOrders((prev) =>
         prev.map((order) =>
           order._id === orderId ? { ...order, status: newStatus } : order
@@ -380,11 +379,19 @@ const OrdersPage = () => {
                           )}
                         >
                           {item.imageUrl ? (
-                            <img
-                              src={`https://groccery-app-frontend.onrender.com${item.imageUrl}`}
-                              alt={item.name}
-                              className={styles.modalOrderImage}
-                            />
+                            (() => {
+                              const API_BASE =
+                                import.meta.env.VITE_API_URL ||
+                                "http://localhost:4000/api";
+                              const base = API_BASE.replace(/\/api$|\/$/, "");
+                              return (
+                                <img
+                                  src={`${base}${item.imageUrl}`}
+                                  alt={item.name}
+                                  className={styles.modalOrderImage}
+                                />
+                              );
+                            })()
                           ) : (
                             <div className={styles.modalPlaceholderImage}></div>
                           )}

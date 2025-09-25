@@ -49,16 +49,14 @@ const Login = () => {
     }));
   };
 
+  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!formData.remember) {
-      setError("You must agree to terms and conditions");
-      return;
-    }
     try {
       const response = await axios.post(
-        "https://groccery-app-frontend.onrender.com/api/user/login",
+        `${API_BASE}/user/login`,
         {
           email: formData.email,
           password: formData.password,
@@ -67,8 +65,13 @@ const Login = () => {
       );
       if (response.data.success) {
         const { token, user } = response.data;
-        localStorage.setItem("authToken", token);
-        localStorage.setItem("userData", JSON.stringify(user));
+        if (formData.remember) {
+          localStorage.setItem("authToken", token);
+          localStorage.setItem("userData", JSON.stringify(user));
+        } else {
+          sessionStorage.setItem("authToken", token);
+          sessionStorage.setItem("userData", JSON.stringify(user));
+        }
         setShowToast(true);
         window.dispatchEvent(new Event("authStateChanged"));
         setTimeout(() => {
